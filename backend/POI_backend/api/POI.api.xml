@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>POI.api</name>
+    </assembly>
+    <members>
+        <member name="M:POI.api.Controllers.HashtagController.Get">
+            <summary>
+            Get all hashtags
+            </summary>
+            <remarks>
+            Get all hashtags in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.HashtagController.Get(System.Guid)">
+            <summary>
+            Get hashtag by ID
+            </summary>
+            <remarks>
+            Get hastag in POI system with ID
+            
+               ID : ID of hashtag 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.HashtagController.Post(POI.repository.ViewModels.CreateHashtagViewModel)">
+            <summary>
+            Create new hastag (Post method)
+            </summary>
+            <remarks>
+            Create new hastag 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.HashtagController.Put(POI.repository.ViewModels.UpdateHashtagViewModel)">
+            <summary>
+            Update hashtag information (Put method)
+            </summary>
+            <remarks>
+            Update your hashtag with name and short name  
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.HashtagController.Delete(System.Guid)">
+            <summary>
+            Deactivate an hashtag (Delete method)
+            </summary>
+            <remarks>
+            Deactivate hashtag by this id   
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.ProvinceController.Get">
+            <summary>
+            Get all provinces
+            </summary>
+            <remarks>
+            Get all provinces in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.ProvinceController.Get(System.Guid)">
+            <summary>
+            Get province by ID
+            </summary>
+            <remarks>
+            Get province in POI system with ID
+            
+               ID : ID of province 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.ProvinceController.Post(POI.repository.ViewModels.CreateProvinceViewModel)">
+            <summary>
+            Create new province (Post method)
+            </summary>
+            <remarks>
+            Create new province 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.ProvinceController.Put(POI.repository.ViewModels.UpdateProvinceViewModel)">
+            <summary>
+            Update province information (Put method)
+            </summary>
+            <remarks>
+            Update your province with name
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.ProvinceController.Delete(System.Guid)">
+            <summary>
+            Deactivate an province (Delete method)
+            </summary>
+            <remarks>
+            Deactivate province by this id   
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.UserController.Get">
+            <summary>
+            Get all users
+            </summary>
+            <remarks>
+            Get all users in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.UserController.Get(System.Guid)">
+            <summary>
+            Get user by ID
+            </summary>
+            <remarks>
+            Get user in POI system with ID
+            
+               ID : ID of user 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.UserController.Post(POI.repository.ViewModels.CreateUserViewModel)">
+            <summary>
+            Register new user (Post method)
+            </summary>
+            <remarks>
+            Create new user 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.UserController.Put(POI.repository.ViewModels.UpdateUserViewModel)">
+            <summary>
+            Update account (Put method)
+            </summary>
+            <remarks>
+            Update your account with password, firstname, lastname, phone only   
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.UserController.Delete(System.Guid)">
+            <summary>
+            Deactivate an account (Delete method)
+            </summary>
+            <remarks>
+            Deactivate user by their id   
+            </remarks>
+        </member>
+    </members>
+</doc>
