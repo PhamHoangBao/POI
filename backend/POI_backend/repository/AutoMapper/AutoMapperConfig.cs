@@ -16,6 +16,11 @@ namespace POI.repository.AutoMapper
                 mc.ConfigureUserModule();
                 mc.ConfigureHashtagModule();
                 mc.ConfigureProvinceModule();
+                mc.ConfigureDestinationModule();
+                mc.ConfigureDesTypeModule();
+
+                mc.ConfigurePoiModule();
+                mc.ConfigurePoiTypeModule();
             }
             )
             ;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using AutoMapper;
 using POI.repository.Entities;
+using POI.repository.Enums;
 using POI.repository.ViewModels;
 
 
@@ -15,10 +16,10 @@ namespace POI.repository.AutoMapper
 
             mc.CreateMap<User, CreateUserViewModel>();
             mc.CreateMap<CreateUserViewModel, User>()
-                .ForMember(des => des.Status, options => options.MapFrom(src => 1));
+                .ForMember(des => des.Status, options => options.MapFrom(src => UserEnum.Active));
             mc.CreateMap<User, UpdateUserViewModel>();
             mc.CreateMap<UpdateUserViewModel, User>()
-                .ForMember(des => des.Status, options => options.MapFrom(src => 1));
+                .ForMember(des => des.Status, options => options.MapFrom(src => UserEnum.Active));
         }
     }
 }
