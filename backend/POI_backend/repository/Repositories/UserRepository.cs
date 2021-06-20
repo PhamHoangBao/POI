@@ -5,12 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using POI.repository.Entities;
-using POI.repository.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace POI.repository.Repositories
 {
+    public interface IUserRepository : IGenericRepository<User>
+    {
+        Task<User> GetUserWithRoleAsync(Expression<Func<User, bool>> predicate, bool istracked);
+        User GetUserWithRole(Expression<Func<User, bool>> predicate, bool istracked);
+    }
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
         public UserRepository(POIContext context) : base(context)

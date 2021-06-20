@@ -5,6 +5,8 @@ using POI.repository.Entities;
 using POI.repository.ResultEnums;
 using POI.repository.ViewModels;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
+
 
 namespace POI.service.IServices
 {
@@ -13,5 +15,6 @@ namespace POI.service.IServices
         Task<CreateEnum> CreateNewUser(CreateUserViewModel user);
         UpdateEnum UpdateUser(UpdateUserViewModel user);
         DeleteEnum DeactivateUser(Guid id);
+        User GetUserWithRole(Expression<Func<User, bool>> predicate, bool istracked);
     }
 }

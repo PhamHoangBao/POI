@@ -6,6 +6,9 @@ using POI.repository.IRepositories;
 
 namespace POI.repository.Repositories
 {
+    public interface IBlogRepository : IGenericRepository<Blog>
+    {
+    }
     public class BlogRepository : GenericRepository<Blog>, IBlogRepository
     {
         public BlogRepository(POIContext context) : base(context)

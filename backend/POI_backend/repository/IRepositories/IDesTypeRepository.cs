@@ -9,6 +9,5 @@ namespace POI.repository.IRepositories
 {
     public interface IDesTypeRepository : IGenericRepository<DestinationType>
     {
-        
     }
 }

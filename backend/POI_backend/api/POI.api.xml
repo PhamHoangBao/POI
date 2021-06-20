@@ -4,6 +4,126 @@
         <name>POI.api</name>
     </assembly>
     <members>
+        <member name="M:POI.api.Controllers.DestinationController.Get">
+            <summary>
+            Get all destinations
+            </summary>
+            <remarks>
+            Get all destinations in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.Get(System.Guid)">
+            <summary>
+            Get destination by ID
+            </summary>
+            <remarks>
+            Get destination in POI system with ID
+            
+               ID : ID of destination 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.Post(POI.repository.ViewModels.CreateDestinationViewModel)">
+            <summary>
+            Create new destination (Post method)
+            </summary>
+            <remarks>
+            Create new destination 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.Put(POI.repository.ViewModels.UpdateDestinationViewModel)">
+            <summary>
+            Update destination information (Put method)
+            </summary>
+            <remarks>
+            Update your destination with name and short name  
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.Delete(System.Guid)">
+            <summary>
+            Deactivate an destination (Delete method)
+            </summary>
+            <remarks>
+            Deactivate destination by this id   
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.AssignHashtagToDestination(System.Guid,System.Guid)">
+            <summary>
+            Assign hashtag to destination
+            </summary>
+            <remarks>
+            Assign hashtag to destination  
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.GetDestinationWithHashtag(System.Guid)">
+            <summary>
+            Get Destination with hashtag
+            </summary>
+            <remarks>
+            Get Destination with hashtag 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.GetDestinationWithinProvince(System.Guid)">
+            <summary>
+            Get Destination within Province
+            </summary>
+            <remarks>
+            Get Destination within Province
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DesTypeController.Get">
+            <summary>
+            Get all destination types
+            </summary>
+            <remarks>
+            Get all destination types in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.DesTypeController.Get(System.Guid)">
+            <summary>
+            Get destination type by ID
+            </summary>
+            <remarks>
+            Get destination type in POI system with ID
+            
+               ID : ID of destination type 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.DesTypeController.Post(POI.repository.ViewModels.CreateDesTypeViewModel)">
+            <summary>
+            Create new destination type (Post method)
+            </summary>
+            <remarks>
+            Create new destination type 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DesTypeController.Put(POI.repository.ViewModels.UpdateDesTypeViewModel)">
+            <summary>
+            Update destination type information (Put method)
+            </summary>
+            <remarks>
+            Update your destination type with name and short name  
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DesTypeController.Delete(System.Guid)">
+            <summary>
+            Deactivate an destination type (Delete method)
+            </summary>
+            <remarks>
+            Deactivate destination type by this id   
+            </remarks>
+        </member>
         <member name="M:POI.api.Controllers.HashtagController.Get">
             <summary>
             Get all hashtags
@@ -50,6 +170,110 @@
             </summary>
             <remarks>
             Deactivate hashtag by this id   
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.Get">
+            <summary>
+            Get all pois
+            </summary>
+            <remarks>
+            Get all pois in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.Get(System.Guid)">
+            <summary>
+            Get poi by ID
+            </summary>
+            <remarks>
+            Get poi in POI system with ID
+            
+               ID : ID of poi 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.Post(POI.repository.ViewModels.CreatePoiViewModel)">
+            <summary>
+            Create new poi (Post method)
+            </summary>
+            <remarks>
+            Create new poi 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.Put(POI.repository.ViewModels.UpdatePoiViewModel)">
+            <summary>
+            Update poi information (Put method)
+            </summary>
+            <remarks>
+            Update your poi with name
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.Delete(System.Guid)">
+            <summary>
+            Deactivate a poi (Delete method)
+            </summary>
+            <remarks>
+            Deactivate poi by this id   
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.PostNewPOIByUser(POI.repository.ViewModels.CreatePoiByUserViewModel)">
+            <summary>
+            Post a new poi by user (Post method)
+            </summary>
+            <remarks>
+            Post a new POI by user. POI status is Pending
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.PoiTypeController.Get">
+            <summary>
+            Get all poiTypes
+            </summary>
+            <remarks>
+            Get all poiTypes in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.PoiTypeController.Get(System.Guid)">
+            <summary>
+            Get poiType by ID
+            </summary>
+            <remarks>
+            Get poiType in POI system with ID
+            
+               ID : ID of poiType 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.PoiTypeController.Post(POI.repository.ViewModels.CreatePoiTypeViewModel)">
+            <summary>
+            Create new poiType (Post method)
+            </summary>
+            <remarks>
+            Create new poiType 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.PoiTypeController.Put(POI.repository.ViewModels.UpdatePoiTypeViewModel)">
+            <summary>
+            Update poiType information (Put method)
+            </summary>
+            <remarks>
+            Update your poiType with name
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.PoiTypeController.Delete(System.Guid)">
+            <summary>
+            Deactivate a poiType (Delete method)
+            </summary>
+            <remarks>
+            Deactivate poiType by this id   
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.ProvinceController.Get">
@@ -100,6 +324,78 @@
             Deactivate province by this id   
             </remarks>
         </member>
+        <member name="M:POI.api.Controllers.TripController.Get">
+            <summary>
+            Get all trips
+            </summary>
+            <remarks>
+            Get all trips in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.TripController.Get(System.Guid)">
+            <summary>
+            Get trip by ID
+            </summary>
+            <remarks>
+            Get trip in POI system with ID
+            
+               ID : ID of trip 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.TripController.Post(POI.repository.ViewModels.CreateTripViewModel)">
+            <summary>
+            Create new Trip (Post method)
+            </summary>
+            <remarks>
+            Create new Trip 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.TripController.Put(POI.repository.ViewModels.UpdateTripViewModel)">
+            <summary>
+            Update trip information (Put method)
+            </summary>
+            <remarks>
+            Update your trip with name 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.TripController.FinishTrip(System.Guid)">
+            <summary>
+            Finish trip  (Put method)
+            </summary>
+            <remarks>
+            Finish trip ưhen user end their trip and go home
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.TripController.Delete(System.Guid)">
+            <summary>
+            Deactivate an trip (Delete method)
+            </summary>
+            <remarks>
+            Deactivate trip by this id   
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.TripController.GetTripDestination(System.Guid)">
+            <summary>
+            Get All Destinations in trips
+            </summary>
+            <remarks>
+            Get trip destination entities on a trip
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.TripController.PostTripDestination(System.Guid,System.Guid)">
+            <summary>
+            Create tripDestination 
+            </summary>
+            <remarks>
+            Get trip destination entities when moving to new destination during a trip
+            </remarks>
+        </member>
         <member name="M:POI.api.Controllers.UserController.Get">
             <summary>
             Get all users
@@ -146,6 +442,102 @@
             </summary>
             <remarks>
             Deactivate user by their id   
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.UserController.Login(POI.repository.ViewModels.AuthenticatedUserRequest)">
+            <summary>
+            Login with user Role
+            </summary>
+            <remarks>
+            Login with user Role 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.VisitController.Get">
+            <summary>
+            Get all visits
+            </summary>
+            <remarks>
+            Get all visits in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.VisitController.Get(System.Guid)">
+            <summary>
+            Get visit by ID
+            </summary>
+            <remarks>
+            Get visit in POI system with ID
+            
+               ID : ID of visit 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.VisitController.Post(POI.repository.ViewModels.CreateVisitViewModel)">
+            <summary>
+            Create new Visit (Post method)
+            </summary>
+            <remarks>
+            Create new Visit 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.VisitController.Put(POI.repository.ViewModels.UpdateVisitViewModel)">
+            <summary>
+            Update visit information (Put method)
+            </summary>
+            <remarks>
+            Update your visit 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.VisitController.Delete(System.Guid)">
+            <summary>
+            Archive an visit (Delete method)
+            </summary>
+            <remarks>
+            Archive hashtag by this id   
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.VoteController.Get">
+            <summary>
+            Get all votes
+            </summary>
+            <remarks>
+            Get all votes in POI system
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.VoteController.Get(System.Guid)">
+            <summary>
+            Get votes by ID
+            </summary>
+            <remarks>
+            Get votes in POI system with ID
+            
+               ID : ID of votes 
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.VoteController.Post(POI.repository.ViewModels.CreateVoteViewModel)">
+            <summary>
+            Create new vote (Post method)
+            </summary>
+            <remarks>
+            Create new vote 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.VoteController.Put(POI.repository.ViewModels.UpdateVoteViewModel)">
+            <summary>
+            Update vote information (Put method)
+            </summary>
+            <remarks>
+            Update your vote with its vote Value 
             </remarks>
         </member>
     </members>

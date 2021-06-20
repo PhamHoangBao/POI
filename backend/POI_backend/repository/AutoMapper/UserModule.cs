@@ -20,6 +20,10 @@ namespace POI.repository.AutoMapper
             mc.CreateMap<User, UpdateUserViewModel>();
             mc.CreateMap<UpdateUserViewModel, User>()
                 .ForMember(des => des.Status, options => options.MapFrom(src => UserEnum.Active));
+            mc.CreateMap<User, AuthenticatedUserViewModel>()
+                .ForMember(des => des.RoleName, options => options.MapFrom(src => src.Role.RoleName));
+            mc.CreateMap<AuthenticatedUserViewModel, User>()
+                .ForMember(des => des.Status, options => options.MapFrom(src => UserEnum.Active));
         }
     }
 }

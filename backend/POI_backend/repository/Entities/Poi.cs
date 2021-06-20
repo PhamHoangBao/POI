@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 
 #nullable disable
 
@@ -18,7 +19,7 @@ namespace POI.repository.Entities
         public Guid DestinationId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Coordinate { get; set; }
+        public Geometry Location { get; set; }
         public double Rating { get; set; }
         public int Status { get; set; }
 

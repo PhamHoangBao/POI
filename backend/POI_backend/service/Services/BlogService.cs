@@ -4,7 +4,10 @@ using System.Text;
 
 namespace POI.service.Services
 {
-    class BlogService
+    public interface IBlogService
+    {
+    }
+    public class BlogService
     {
     }
 }

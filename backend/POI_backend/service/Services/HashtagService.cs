@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using POI.repository.IRepositories;
-using POI.service.IServices;
+using POI.repository.Repositories;
 using POI.repository.Entities;
 using AutoMapper;
 using System.Threading.Tasks;
@@ -13,6 +12,12 @@ using POI.repository.Enums;
 
 namespace POI.service.Services
 {
+    public interface IHashtagService : IGenericService<Hashtag>
+    {
+        Task<CreateEnum> CreateNewHashtag(CreateHashtagViewModel hashtag);
+        UpdateEnum UpdateHashtag(UpdateHashtagViewModel hashtag);
+        DeleteEnum DeactivateHashtag(Guid id);
+    }
     public class HashtagService : GenericService<Hashtag>, IHashtagService
     {
         private readonly IHashtagRepository _hashtagRepository;

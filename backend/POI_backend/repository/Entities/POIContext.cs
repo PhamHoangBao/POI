@@ -37,8 +37,8 @@ namespace POI.repository.Entities
         {
             if (!optionsBuilder.IsConfigured)
             {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=LAPTOP-U0JF1V7J\\HOANGBAO;User ID=sa;Password=hoangbao;Initial Catalog=POI");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Data Source=LAPTOP-U0JF1V7J\\HOANGBAO;User ID=sa;Password=hoangbao;Initial Catalog=POI", x => x.UseNetTopologySuite());
             }
         }
 
@@ -102,15 +102,15 @@ namespace POI.repository.Entities
                     .HasColumnName("DestinationID")
                     .HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.Coordinate)
-                    .IsRequired()
-                    .HasMaxLength(500);
-
                 entity.Property(e => e.DestinationName)
                     .IsRequired()
                     .HasMaxLength(200);
 
                 entity.Property(e => e.DestinationTypeId).HasColumnName("DestinationTypeID");
+
+                entity.Property(e => e.Location)
+                    .IsRequired()
+                    .HasColumnType("geometry");
 
                 entity.Property(e => e.ProvinceId).HasColumnName("ProvinceID");
 
@@ -163,13 +163,13 @@ namespace POI.repository.Entities
                     .HasColumnName("PoiID")
                     .HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.Coordinate)
-                    .IsRequired()
-                    .HasMaxLength(500);
-
                 entity.Property(e => e.Description).IsRequired();
 
                 entity.Property(e => e.DestinationId).HasColumnName("DestinationID");
+
+                entity.Property(e => e.Location)
+                    .IsRequired()
+                    .HasColumnType("geometry");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -235,7 +235,7 @@ namespace POI.repository.Entities
 
                 entity.Property(e => e.ProvinceId)
                     .HasColumnName("ProvinceID")
-                    .HasDefaultValueSql("(newid())"); ;
+                    .HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -262,6 +262,10 @@ namespace POI.repository.Entities
                 entity.Property(e => e.TripId)
                     .HasColumnName("TripID")
                     .HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.EndTime).HasColumnType("datetime");
+
+                entity.Property(e => e.StartTime).HasColumnType("datetime");
 
                 entity.Property(e => e.TripName)
                     .IsRequired()

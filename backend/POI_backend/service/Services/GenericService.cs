@@ -4,12 +4,29 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using POI.service.IServices;
-using POI.repository.IRepositories;
+using POI.repository.Repositories;
+//using POI.repository.IRepositories;
 
 
 namespace POI.service.Services
 {
+    public interface IGenericService<T> where T : class
+    {
+        T GetByID(Guid ID);
+        Task<T> GetByIDAsync(Guid id);
+        IEnumerable<T> GetAll();
+        IQueryable<T> Find(Expression<Func<T, bool>> expression, bool istracked);
+        Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, bool istracked);
+        T FirstOrDefault(Expression<Func<T, bool>> predicate, bool istracked);
+        Task AddAsync(T entity);
+        void Update(T entity);
+        void Add(T entity);
+        void AddRange(IEnumerable<T> entities);
+        void Remove(T entity);
+        void RemoveRange(IEnumerable<T> entities);
+        void Savechanges();
+        Task SaveChangesAsync();
+    }
     public class GenericService<T> : IGenericService<T> where T : class
     {
         public readonly IGenericRepository<T> _genericRepository;
@@ -30,7 +47,7 @@ namespace POI.service.Services
 
         public Task AddAsync(T entity)
         {
-           return _genericRepository.AddAsync(entity);
+            return _genericRepository.AddAsync(entity);
         }
 
         public void AddRange(IEnumerable<T> entities)

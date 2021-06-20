@@ -6,6 +6,9 @@ using POI.repository.IRepositories;
 
 namespace POI.repository.Repositories
 {
+    public interface IHashtagRepository : IGenericRepository<Hashtag>
+    {
+    }
     public class HashtagRepository : GenericRepository<Hashtag>, IHashtagRepository
     {
         public HashtagRepository(POIContext context) : base(context)

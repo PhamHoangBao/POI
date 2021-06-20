@@ -8,7 +8,8 @@ using Microsoft.Extensions.Logging;
 using POI.repository.Entities;
 using POI.repository.ResultEnums;
 using POI.repository.ViewModels;
-using POI.service.IServices;
+using POI.service.Services;
+using POI.repository.Enums;
 
 namespace POI.api.Controllers
 {
@@ -18,11 +19,15 @@ namespace POI.api.Controllers
     {
         private readonly ILogger<DestinationController> _logger;
         private readonly IDestinationService _destinationService;
+        private readonly IDesHashtagService _desHashtagService;
 
-        public DestinationController(IDestinationService destinationService, ILogger<DestinationController> logger)
+        public DestinationController(IDestinationService destinationService,
+            ILogger<DestinationController> logger,
+            IDesHashtagService desHashtagService)
         {
             _logger = logger;
             _destinationService = destinationService;
+            _desHashtagService = desHashtagService;
         }
 
 
@@ -43,7 +48,7 @@ namespace POI.api.Controllers
         public IActionResult Get()
         {
             _logger.LogInformation("All destination is queried");
-            return Ok(_destinationService.GetAll());
+            return Ok(_destinationService.GetDestination(m => m.Status == (int) DestinationEnum.Available, false));
         }
 
 
@@ -63,7 +68,7 @@ namespace POI.api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Get(Guid id)
         {
-            Destination destination = _destinationService.GetByID(id);
+            Destination destination = _destinationService.GetDestination(m => m.DestinationId.Equals(id), false).First();
             if (destination == null)
             {
                 return NotFound();
@@ -156,6 +161,74 @@ namespace POI.api.Controllers
             else
             {
                 return StatusCode(405);
+            }
+        }
+
+        /// <summary>
+        /// Assign hashtag to destination
+        /// </summary>
+        /// <remarks>
+        /// Assign hashtag to destination  
+        /// </remarks>
+        [HttpPost("{destinationID}/hashtag")]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> AssignHashtagToDestination(Guid destinationID, Guid hashtagID)
+        {
+            CreateEnum resultCode = await _desHashtagService.CreateNewDesHashtag(destinationID, hashtagID);
+            switch (resultCode)
+            {
+                case CreateEnum.Success:
+                    return Created(nameof(Get), destinationID);
+                case CreateEnum.Duplicate:
+                    return BadRequest("This destination and hashtag is already assigned");
+                case CreateEnum.Error:
+                    return BadRequest("Destination or hashtag is not existed or disable");
+                case CreateEnum.ErrorInServer:
+                    return StatusCode(500);
+                default:
+                    return StatusCode(500);
+            }
+        }
+
+        /// <summary>
+        /// Get Destination with hashtag
+        /// </summary>
+        /// <remarks>
+        /// Get Destination with hashtag 
+        /// </remarks>
+        [HttpGet("hashtag/{hashtagID}")]
+        [ProducesDefaultResponseType]
+        public IActionResult GetDestinationWithHashtag(Guid hashtagID)
+        {
+            IQueryable<DesHashtag> destHastags = _desHashtagService.GetDestinationWithHashtagID(hashtagID);
+            if (destHastags == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(destHastags);
+            }
+        }
+
+        /// <summary>
+        /// Get Destination within Province
+        /// </summary>
+        /// <remarks>
+        /// Get Destination within Province
+        /// </remarks>
+        [HttpGet("province/{provinceID}")]
+        [ProducesDefaultResponseType]
+        public IActionResult GetDestinationWithinProvince(Guid provinceID)
+        {
+            IQueryable<Destination> destinations = _destinationService.GetDetinationWithProvince(provinceID);
+            if (destinations == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(destinations);
             }
         }
     }

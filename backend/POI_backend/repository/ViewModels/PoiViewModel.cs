@@ -14,6 +14,10 @@ namespace POI.repository.ViewModels
         public string Coordinate { get; set; }
     }
 
+    public class CreatePoiByUserViewModel : CreatePoiViewModel
+    {
+    }
+
     public class UpdatePoiViewModel
     {
         public Guid PoiId { get; set; }

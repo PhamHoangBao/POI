@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using POI.repository.Entities;
-using POI.service.IServices;
+using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
@@ -127,7 +127,7 @@ namespace POI.api.Controllers
             }
             else
             {
-                return StatusCode(405);
+                return BadRequest("No POI found");
             }
         }
 
@@ -156,6 +156,39 @@ namespace POI.api.Controllers
                 return StatusCode(405);
             }
         }
+
+        /// <summary>
+        /// Post a new poi by user (Post method)
+        /// </summary>
+        /// <remarks>
+        /// Post a new POI by user. POI status is Pending
+        /// </remarks>
+        [HttpPost("user")]
+        [ProducesDefaultResponseType]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> PostNewPOIByUser(CreatePoiByUserViewModel poiViewModel)
+        {
+            _logger.LogInformation("Post request is called");
+            CreateEnum resultCode = await _poiService.CreateNewPoi(poiViewModel);
+            if (resultCode == CreateEnum.Success)
+            { 
+                return CreatedAtAction("Get", null);
+            }
+            else if (resultCode == CreateEnum.ErrorInServer)
+            {
+                return StatusCode(500);
+            }
+            else
+            {
+                return BadRequest("POI is already exist");
+            }
+        }
+
+
+  
+
 
     }
 }

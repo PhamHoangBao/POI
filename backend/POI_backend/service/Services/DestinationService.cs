@@ -1,15 +1,25 @@
 ﻿using System;
-using POI.repository.IRepositories;
-using POI.service.IServices;
+using POI.repository.Repositories;
 using POI.repository.Entities;
 using AutoMapper;
 using System.Threading.Tasks;
 using POI.repository.ResultEnums;
 using POI.repository.ViewModels;
 using POI.repository.Enums;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace POI.service.Services
 {
+    public interface IDestinationService : IGenericService<Destination>
+    {
+        public Task<CreateEnum> CreateNewDestination(CreateDestinationViewModel destination);
+        public DeleteEnum DeactivateDestination(Guid id);
+        public UpdateEnum UpdateDestination(UpdateDestinationViewModel destination);
+        public IQueryable<Destination> GetDestination(Expression<Func<Destination, bool>> predicate, bool istracked);
+
+        public IQueryable<Destination> GetDetinationWithProvince(Guid provinceId);
+    }
     public class DestinationService : GenericService<Destination>, IDestinationService
     {
         private readonly IDestinationRepository _destinationRepository;
@@ -67,6 +77,16 @@ namespace POI.service.Services
                     return DeleteEnum.ErrorInServer;
                 }
             }
+        }
+
+        public IQueryable<Destination> GetDestination(Expression<Func<Destination, bool>> predicate, bool istracked)
+        {
+            return _destinationRepository.GetDestination(predicate, istracked);
+        }
+
+        public IQueryable<Destination> GetDetinationWithProvince(Guid provinceId)
+        {
+            return _destinationRepository.GetDestination(m => m.ProvinceId.Equals(provinceId), false);
         }
 
         public UpdateEnum UpdateDestination(UpdateDestinationViewModel destination)

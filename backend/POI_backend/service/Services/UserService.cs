@@ -1,26 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using POI.service.IServices;
 using POI.repository.Entities;
 using POI.repository.Repositories;
-using POI.repository.IRepositories;
 using AutoMapper;
 using System.Threading.Tasks;
 using POI.repository.ResultEnums;
 using POI.repository.ViewModels;
 using POI.repository.Enums;
+using System.Linq.Expressions;
+//using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using POI.service.Helpers;
+using System.Security.Claims;
+using Microsoft.Extensions.Options;
+
+
+
 
 namespace POI.service.Services
 {
+    public interface IUserService : IGenericService<User>
+    {
+        Task<CreateEnum> CreateNewUser(CreateUserViewModel user);
+        UpdateEnum UpdateUser(UpdateUserViewModel user);
+        DeleteEnum DeactivateUser(Guid id);
+        User GetUserWithRole(Expression<Func<User, bool>> predicate, bool istracked);
+
+        AuthenticatedUserViewModel AuthenticateUser(AuthenticatedUserRequest model);
+    }
     public class UserService : GenericService<User>, IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public UserService(IUserRepository userRepository, IMapper mapper) : base(userRepository)
+        private readonly AppSettings _appSettings;
+
+        public UserService(IUserRepository userRepository
+            , IMapper mapper
+            , IOptions<AppSettings> appSettings) : base(userRepository)
         {
             _mapper = mapper;
             _userRepository = userRepository;
+            _appSettings = appSettings.Value;
         }
 
         public async Task<CreateEnum> CreateNewUser(CreateUserViewModel user)
@@ -95,6 +117,50 @@ namespace POI.service.Services
                     return UpdateEnum.ErrorInServer;
                 }
             }
+        }
+
+        public User GetUserWithRole(Expression<Func<User, bool>> predicate, bool istracked)
+        {
+            return _userRepository.GetUserWithRole(predicate, false);
+        }
+
+        private string GenerateJwtToken(User user)
+        {
+            // generate token that is valid for 3 minutes
+            var tokenHandler = new JwtSecurityTokenHandler();
+            Console.WriteLine("Secret" + _appSettings.Secret);
+            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[] 
+                { 
+                    new Claim(ClaimTypes.Name, user.UserId.ToString()) ,
+                    new Claim(ClaimTypes.Role, user.Role.RoleName)
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        public AuthenticatedUserViewModel AuthenticateUser(AuthenticatedUserRequest model)
+        {
+            User user = _userRepository.GetUserWithRole(m => m.Email.Equals(model.Email) && m.Password.Equals(model.Password), false);
+            if (user == null)
+            {
+                return null;
+            }
+
+            if (user.Status == (int)UserEnum.Unactive)
+            {
+                return null;
+            }
+            var token = GenerateJwtToken(user);
+
+            AuthenticatedUserViewModel entity = _mapper.Map<AuthenticatedUserViewModel>(user);
+            entity.Token = token;
+            return entity;
         }
     }
 }

@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<UserSecretsId>034bc013-c6b1-49d1-9019-2048612deaff</UserSecretsId>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -10,17 +11,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.15" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.6">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.7">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="5.0.7" />
 		<PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.1.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.1.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.4" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.1" />
 	</ItemGroup>
 
 	<ItemGroup>

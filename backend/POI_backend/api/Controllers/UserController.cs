@@ -6,11 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using POI.repository.Entities;
-using POI.service.IServices;
+using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace POI.api.Controllers
 {
@@ -39,6 +39,7 @@ namespace POI.api.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesDefaultResponseType]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Get()
@@ -60,6 +61,7 @@ namespace POI.api.Controllers
         /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesDefaultResponseType]
+        [Authorize(Roles = "Admin, User")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Get(Guid id)
@@ -84,6 +86,7 @@ namespace POI.api.Controllers
 
         [HttpPost]
         [ProducesDefaultResponseType]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -158,5 +161,27 @@ namespace POI.api.Controllers
                 return StatusCode(405);
             }
         }
+
+        /// <summary>
+        /// Login with user Role
+        /// </summary>
+        /// <remarks>
+        /// Login with user Role 
+        /// </remarks>
+        [HttpPost("login")]
+        [AllowAnonymous]
+        [ProducesDefaultResponseType]
+        public IActionResult Login(AuthenticatedUserRequest model)
+        {
+            _logger.LogInformation("Login Request is called");
+            AuthenticatedUserViewModel user = _userService.AuthenticateUser(model);
+            if (user != null){
+                    return Ok(user); 
+            } else
+            {
+                return NotFound();
+            }
+        }
+
     }
 }

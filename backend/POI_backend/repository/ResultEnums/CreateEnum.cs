@@ -8,6 +8,7 @@ namespace POI.repository.ResultEnums
     {
         Duplicate = 0,
         Success = 1,
-        ErrorInServer = 2
+        ErrorInServer = 2,
+        Error = 3
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using POI.repository.Entities;
 using POI.repository.ResultEnums;
 using POI.repository.ViewModels;
-using POI.service.IServices;
+using POI.service.Services;
 
 namespace POI.api.Controllers
 {

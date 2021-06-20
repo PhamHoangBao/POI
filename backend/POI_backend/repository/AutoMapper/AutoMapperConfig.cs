@@ -21,6 +21,10 @@ namespace POI.repository.AutoMapper
 
                 mc.ConfigurePoiModule();
                 mc.ConfigurePoiTypeModule();
+                mc.ConfigureTripModule();
+                mc.ConfigureVisitModule();
+                mc.ConfigureVoteModule();
+                mc.ConfigureTripDestinationModule();
             }
             )
             ;

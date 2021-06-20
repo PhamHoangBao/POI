@@ -1,6 +1,5 @@
 ﻿using System;
-using POI.repository.IRepositories;
-using POI.service.IServices;
+using POI.repository.Repositories;
 using POI.repository.Entities;
 using AutoMapper;
 using System.Threading.Tasks;
@@ -10,6 +9,12 @@ using POI.repository.Enums;
 
 namespace POI.service.Services
 {
+    public interface IDesTypeService : IGenericService<DestinationType>
+    {
+        public Task<CreateEnum> CreateNewDesType(CreateDesTypeViewModel destination);
+        public DeleteEnum DeactivateDesType(Guid id);
+        public UpdateEnum UpdateDesType(UpdateDesTypeViewModel destination);
+    }
     public class DesTypeService : GenericService<DestinationType>, IDesTypeService
     {
         private readonly IDesTypeRepository _desTypeRepository;

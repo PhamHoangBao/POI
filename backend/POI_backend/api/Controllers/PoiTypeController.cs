@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using POI.repository.Entities;
-using POI.service.IServices;
+using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;

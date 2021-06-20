@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using POI.repository.Entities;
-using POI.repository.IRepositories;
 using POI.repository.Repositories;
 using POI.service.Services;
-using POI.service.IServices;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -42,6 +40,21 @@ namespace POI.service.DI
             // 
             services.AddTransient<IPoiService, PoiService>();
             services.AddTransient<IPoiRepository, PoiRepository>();
+
+            services.AddTransient<ITripService, TripService>();
+            services.AddTransient<ITripRepository, TripRepository>();
+
+            services.AddTransient<IVisitService, VisitService>();
+            services.AddTransient<IVisitRepository, VisitRepository>();
+
+            services.AddTransient<IVoteService, VoteService>();
+            services.AddTransient<IVoteRepository, VoteRepository>();
+
+            services.AddTransient<ITripDestinationService, TripDestinationService>();
+            services.AddTransient<ITripDestinationRepository, TripDestinationRepository>();
+
+            services.AddTransient<IDesHashtagService, DesHashtagService>();
+            services.AddTransient<IDesHashtagRepository, DesHashtagRepository>();
         }
     }
 }

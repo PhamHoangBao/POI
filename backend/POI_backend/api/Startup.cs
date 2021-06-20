@@ -20,10 +20,16 @@ using POI.repository.AutoMapper;
 using Swashbuckle.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using POI.service.DI;
+using System.Text;
 using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.PlatformAbstractions;
+using POI.service.Helpers;
+using POI.api.Middleware;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using AutoMapper;
+using NetTopologySuite;
 
 namespace api
 {
@@ -51,14 +57,50 @@ namespace api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<POIContext>(options =>
-                        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), x => x.UseNetTopologySuite()
+                        ));
 
             services.InitializeDI();
             services.ConfigureMapper();
+
+            // Configure CORS
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
+            });
             // add configuration
             services.AddSingleton<IConfiguration>(Configuration);
+            // configure strongly typed settings object
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+            // configure jwt authentication
+            var appSettings = appSettingsSection.Get<AppSettings>();
+
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+
             //services
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(
+                    options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
+            ;
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -95,6 +137,10 @@ namespace api
 
 
             app.UseRouting();
+
+            //app.UseMiddleware<JwtMiddleware>();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

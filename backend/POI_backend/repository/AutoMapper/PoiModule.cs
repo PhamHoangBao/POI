@@ -18,6 +18,9 @@ namespace POI.repository.AutoMapper
             mc.CreateMap<Poi, UpdatePoiViewModel>();
             mc.CreateMap<UpdatePoiViewModel, Poi>()
                 .ForMember(des => des.Status, options => options.MapFrom(src => PoiEnum.Available));
+            mc.CreateMap<Poi, CreatePoiByUserViewModel>();
+            mc.CreateMap<CreatePoiByUserViewModel, Poi>()
+                .ForMember(des => des.Status, options => options.MapFrom(src => PoiEnum.Pending));
         }
     }
 }

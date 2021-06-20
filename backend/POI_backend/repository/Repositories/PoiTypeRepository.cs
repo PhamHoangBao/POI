@@ -6,6 +6,9 @@ using POI.repository.IRepositories;
 
 namespace POI.repository.Repositories
 {
+    public interface IPoiTypeRepository : IGenericRepository<Poitype>
+    {
+    }
     public class PoitypeRepository : GenericRepository<Poitype>, IPoiTypeRepository
     {
         public PoitypeRepository(POIContext context) : base(context)

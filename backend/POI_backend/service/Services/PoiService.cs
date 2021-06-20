@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using POI.repository.IRepositories;
+using POI.repository.Repositories;
 using POI.service.IServices;
 using POI.repository.Entities;
 using AutoMapper;
@@ -12,6 +12,12 @@ using POI.repository.Enums;
 
 namespace POI.service.Services
 {
+    public interface IPoiService : IGenericService<Poi>
+    {
+        public Task<CreateEnum> CreateNewPoi(CreatePoiViewModel province);
+        public DeleteEnum DeactivatePoi(Guid id);
+        public UpdateEnum UpdatePoi(UpdatePoiViewModel province);
+    }
     public class PoiService : GenericService<Poi>, IPoiService
     {
         private readonly IPoiRepository _poiRepository;

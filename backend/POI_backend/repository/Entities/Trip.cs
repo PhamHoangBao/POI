@@ -16,6 +16,8 @@ namespace POI.repository.Entities
         public Guid UserId { get; set; }
         public string TripName { get; set; }
         public int Status { get; set; }
+        public DateTime? StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<TripDestination> TripDestinations { get; set; }
