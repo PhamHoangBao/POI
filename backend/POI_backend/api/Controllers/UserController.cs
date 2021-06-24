@@ -11,6 +11,8 @@ using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
 using Microsoft.AspNetCore.Authorization;
+using Swashbuckle.AspNetCore.Annotations;
+
 
 namespace POI.api.Controllers
 {
@@ -38,13 +40,13 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [ProducesDefaultResponseType]
-        [Authorize(Roles = "Admin")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The users is retrieved", typeof(IEnumerable<User>))]
+        [SwaggerResponse(404, "No user is found")]
         public IActionResult Get()
         {
-            _logger.LogInformation("All user is queried");
+            _logger.LogInformation("All users is queried");
             return Ok(_userService.GetAll());
         }
 
@@ -60,10 +62,10 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesDefaultResponseType]
-        [Authorize(Roles = "Admin, User")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The user is retrieved", typeof(User))]
+        [SwaggerResponse(404, "The user is not found")]
         public IActionResult Get(Guid id)
         {
             User user = _userService.GetByID(id);
@@ -85,11 +87,11 @@ namespace POI.api.Controllers
         /// </remarks>
 
         [HttpPost]
-        [ProducesDefaultResponseType]
         [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [SwaggerResponse(201, "Create user successfully")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(400, "The user is not created")]
+        [SwaggerResponse(409, "The user id is conflicted")]
         public async Task<IActionResult> Post(CreateUserViewModel userViewModel)
         {
             _logger.LogInformation("Post request is called");
@@ -116,8 +118,10 @@ namespace POI.api.Controllers
         /// Update your account with password, firstname, lastname, phone only   
         /// </remarks>
         [HttpPut]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "Update successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdateUserViewModel userViewModel)
         {
             _logger.LogInformation("Put request is called");
@@ -131,7 +135,7 @@ namespace POI.api.Controllers
                 return StatusCode(500);
             } else
             {
-                return StatusCode(405);
+                return BadRequest();
             }
         }
 
@@ -143,7 +147,10 @@ namespace POI.api.Controllers
         /// Deactivate user by their id   
         /// </remarks>
         [HttpDelete("{id}")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
             _logger.LogInformation("Delete Request is called");
@@ -158,7 +165,7 @@ namespace POI.api.Controllers
             }
             else
             {
-                return StatusCode(405);
+                return BadRequest();
             }
         }
 
@@ -170,7 +177,8 @@ namespace POI.api.Controllers
         /// </remarks>
         [HttpPost("login")]
         [AllowAnonymous]
-        [ProducesDefaultResponseType]
+        [SwaggerResponse(201, "Login successfully", typeof(User))]
+        [SwaggerResponse(404, "No user found")]
         public IActionResult Login(AuthenticatedUserRequest model)
         {
             _logger.LogInformation("Login Request is called");

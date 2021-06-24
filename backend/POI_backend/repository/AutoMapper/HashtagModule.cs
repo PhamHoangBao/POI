@@ -18,7 +18,6 @@ namespace POI.repository.AutoMapper
             mc.CreateMap<Hashtag, UpdateHashtagViewModel>();
             mc.CreateMap<UpdateHashtagViewModel, Hashtag>()
                 .ForMember(des => des.Status, options => options.MapFrom(src => HashtagEnum.Available));
-
         }
     }
 }

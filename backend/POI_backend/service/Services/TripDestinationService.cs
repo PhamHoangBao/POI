@@ -19,7 +19,7 @@ namespace POI.service.Services
 
         public int GetCurrentTripDestinationOrder(Guid tripID);
 
-        public Task<CreateEnum> CreateNewTripDestination(Guid tripId, Guid destinationID);
+        public Task<CreateEnum> CreateNewTripDestination(Guid tripId, Guid destinationID, Guid userID);
     }
     public class TripDestinationService : GenericService<TripDestination>, ITripDestinationService
     {
@@ -37,7 +37,7 @@ namespace POI.service.Services
             _tripRepository = tripRepository;
         }
 
-        public async Task<CreateEnum> CreateNewTripDestination(Guid tripId, Guid destinationID)
+        public async Task<CreateEnum> CreateNewTripDestination(Guid tripId, Guid destinationID, Guid userID)
         {
             var trip = await _tripRepository.FirstOrDefaultAsync(m => m.TripId.Equals(tripId), false);
             if (trip == null)
@@ -48,38 +48,39 @@ namespace POI.service.Services
             {
                 return CreateEnum.Error;
             }
-            else
+            else if (trip.UserId.Equals(userID))
             {
                 TripDestination currentTripDest = _tripDestinationRepository.GetCurrentTripDestination(tripId);
+                int order = 1;
                 if (currentTripDest != null)
                 {
                     if (currentTripDest.DestinationId.Equals(destinationID))
                     {
                         return CreateEnum.Duplicate;
                     }
-                    var entity = new TripDestination
-                    {
-                        TripId = tripId,
-                        DestinationId = destinationID,
-                        Order = currentTripDest.Order + 1,
-                        Status = (int)TripDestinationEnum.Available
-                    };
-                    try
-                    {
-                        await AddAsync(entity);
-                        await SaveChangesAsync();
-                        return CreateEnum.Success;
-                    }
-                    catch
-                    {
-                        return CreateEnum.ErrorInServer;
-                    }
+                    order = currentTripDest.Order + 1;
                 }
-                else
+                var entity = new TripDestination
                 {
-                    return CreateEnum.Error;
+                    TripId = tripId,
+                    DestinationId = destinationID,
+                    Order = order,
+                    Status = (int)TripDestinationEnum.Available
+                };
+                try
+                {
+                    await AddAsync(entity);
+                    await SaveChangesAsync();
+                    return CreateEnum.Success;
                 }
-
+                catch
+                {
+                    return CreateEnum.ErrorInServer;
+                }
+            }
+            else
+            {
+                return CreateEnum.NotOwner;
             }
         }
 

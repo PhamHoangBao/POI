@@ -54,9 +54,9 @@ namespace POI.api.Middleware
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var userId = Guid.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
-
+                Console.WriteLine("User ID : " + userId);
                 // attach user to context on successful jwt validation
-                context.Items["User"] = userService.GetByID(userId);
+                context.Items["User"] = userService.GetUserWithRole(m => m.UserId.Equals(userId), false);
             }
             catch
             {

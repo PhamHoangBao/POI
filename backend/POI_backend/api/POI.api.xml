@@ -4,18 +4,6 @@
         <name>POI.api</name>
     </assembly>
     <members>
-        <member name="M:POI.api.Controllers.DestinationController.Get">
-            <summary>
-            Get all destinations
-            </summary>
-            <remarks>
-            Get all destinations in POI system
-            
-                No parameter
-                
-            </remarks>
-            <returns></returns>
-        </member>
         <member name="M:POI.api.Controllers.DestinationController.Get(System.Guid)">
             <summary>
             Get destination by ID
@@ -60,28 +48,31 @@
             Assign hashtag to destination  
             </remarks>
         </member>
-        <member name="M:POI.api.Controllers.DestinationController.GetDestinationWithHashtag(System.Guid)">
-            <summary>
-            Get Destination with hashtag
-            </summary>
-            <remarks>
-            Get Destination with hashtag 
-            </remarks>
-        </member>
-        <member name="M:POI.api.Controllers.DestinationController.GetDestinationWithinProvince(System.Guid)">
-            <summary>
-            Get Destination within Province
-            </summary>
-            <remarks>
-            Get Destination within Province
-            </remarks>
+        <member name="M:POI.api.Controllers.DestinationController.Get(System.Nullable{System.Guid},System.Nullable{System.Guid})">
+             <summary>
+             Get Destination within Province and have hashtag
+             </summary>
+             <remarks>
+             Get Destination within Province and have hashtag. This api can search both option or one only
+             Sample request:
+            
+                 GET /user/find
+                 {
+                    "provinceId": "",
+                    "hashtagId": "",
+                 }
+            
+             </remarks>
+             <returns>Return list of destinations that satisfy conditions</returns>
+             <response code="200">Returns list of destinations that satisfy condition</response>
+             <response code="404">If the list is empty</response> 
         </member>
         <member name="M:POI.api.Controllers.DesTypeController.Get">
             <summary>
             Get all destination types
             </summary>
             <remarks>
-            Get all destination types in POI system
+            Get all destination types in POI system (Admin)
             
                 No parameter
                 
@@ -93,7 +84,7 @@
             Get destination type by ID
             </summary>
             <remarks>
-            Get destination type in POI system with ID
+            Get destination type in POI system with ID (Admin)
             
                ID : ID of destination type 
                 
@@ -105,7 +96,7 @@
             Create new destination type (Post method)
             </summary>
             <remarks>
-            Create new destination type 
+            Create new destination type  (Admin)
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.DesTypeController.Put(POI.repository.ViewModels.UpdateDesTypeViewModel)">
@@ -113,7 +104,7 @@
             Update destination type information (Put method)
             </summary>
             <remarks>
-            Update your destination type with name and short name  
+            Update your destination type with name and short name   (Admin)
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.DesTypeController.Delete(System.Guid)">
@@ -129,7 +120,7 @@
             Get all hashtags
             </summary>
             <remarks>
-            Get all hashtags in POI system
+            Get all hashtags in POI system (Admin)
             
                 No parameter
                 
@@ -141,7 +132,7 @@
             Get hashtag by ID
             </summary>
             <remarks>
-            Get hastag in POI system with ID
+            Get hastag in POI system with ID (Admin ,User)
             
                ID : ID of hashtag 
                 
@@ -153,7 +144,7 @@
             Create new hastag (Post method)
             </summary>
             <remarks>
-            Create new hastag 
+            Create new hastag  (Admin)
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.HashtagController.Put(POI.repository.ViewModels.UpdateHashtagViewModel)">
@@ -161,7 +152,7 @@
             Update hashtag information (Put method)
             </summary>
             <remarks>
-            Update your hashtag with name and short name  
+            Update your hashtag with name and short name (Admin)
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.HashtagController.Delete(System.Guid)">
@@ -180,6 +171,39 @@
             Get all pois in POI system
             
                 No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.GetWithinDestination(System.Guid)">
+            <summary>
+            Get all pois which belong to a Destination
+            </summary>
+            <remarks>
+            Get all pois which belong to a Destination
+            
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.GetPOIOfUser">
+            <summary>
+            Get poi from its user 
+            </summary>
+            <remarks>
+            Get all pois which belong to a Destination
+            
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.GetPOIOfUserBySystem(System.Guid)">
+            <summary>
+            Get poi from its user 
+            </summary>
+            <remarks>
+            Get all pois which belong to a Destination
+            
                 
             </remarks>
             <returns></returns>
@@ -220,13 +244,15 @@
             Deactivate poi by this id   
             </remarks>
         </member>
-        <member name="M:POI.api.Controllers.PoiController.PostNewPOIByUser(POI.repository.ViewModels.CreatePoiByUserViewModel)">
+        <member name="M:POI.api.Controllers.PoiController.ApprovePOI(System.Guid)">
             <summary>
-            Post a new poi by user (Post method)
+            Approve a new POI from user
             </summary>
             <remarks>
-            Post a new POI by user. POI status is Pending
+            Approve a new POI from user
+            
             </remarks>
+            <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.PoiTypeController.Get">
             <summary>
@@ -281,7 +307,7 @@
             Get all provinces
             </summary>
             <remarks>
-            Get all provinces in POI system
+            Get all provinces in POI system (Admin)
             
                 No parameter
                 
@@ -293,7 +319,7 @@
             Get province by ID
             </summary>
             <remarks>
-            Get province in POI system with ID
+            Get province in POI system with ID (Amdin)
             
                ID : ID of province 
                 
@@ -305,7 +331,7 @@
             Create new province (Post method)
             </summary>
             <remarks>
-            Create new province 
+            Create new province  (Admin)
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.ProvinceController.Put(POI.repository.ViewModels.UpdateProvinceViewModel)">
@@ -313,7 +339,7 @@
             Update province information (Put method)
             </summary>
             <remarks>
-            Update your province with name
+            Update your province with name (Admin)
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.ProvinceController.Delete(System.Guid)">
@@ -321,15 +347,15 @@
             Deactivate an province (Delete method)
             </summary>
             <remarks>
-            Deactivate province by this id   
+            Deactivate province by this id (Admin)
             </remarks>
         </member>
-        <member name="M:POI.api.Controllers.TripController.Get">
+        <member name="M:POI.api.Controllers.TripController.GetTrip(System.Nullable{System.Guid})">
             <summary>
             Get all trips
             </summary>
             <remarks>
-            Get all trips in POI system
+            Get all trips in POI system (Admin)
             
                 No parameter
                 
@@ -341,7 +367,7 @@
             Get trip by ID
             </summary>
             <remarks>
-            Get trip in POI system with ID
+            Get trip in POI system with ID (Admin , User)
             
                ID : ID of trip 
                 
@@ -369,7 +395,7 @@
             Finish trip  (Put method)
             </summary>
             <remarks>
-            Finish trip ưhen user end their trip and go home
+            Finish trip when user end their trip and go home
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.TripController.Delete(System.Guid)">

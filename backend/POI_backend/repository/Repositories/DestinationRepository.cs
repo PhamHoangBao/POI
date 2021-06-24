@@ -1,5 +1,4 @@
 ﻿using POI.repository.Entities;
-using POI.repository.IRepositories;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -22,7 +21,6 @@ namespace POI.repository.Repositories
         {
 
         }
-
         public IQueryable<Destination> GetDestination(Expression<Func<Destination, bool>> predicate, bool istracked)
         {
             if (istracked)
@@ -32,8 +30,8 @@ namespace POI.repository.Repositories
                     .Include(dest => dest.Province)
                     .Include(dest => dest.DesHashtags)
                     .ThenInclude(destHashtag => destHashtag.Hashtag)
-                    .Include(dest => dest.TripDestinations)
-                    .ThenInclude(tripDest => tripDest.Trip)
+                    //.Include(dest => dest.TripDestinations)
+                    //.ThenInclude(tripDest => tripDest.Trip)
                     .Select(dest => new Destination
                     {
                         DestinationId = dest.DestinationId,
@@ -42,6 +40,7 @@ namespace POI.repository.Repositories
                         Status = dest.Status,
                         DestinationTypeId = dest.DestinationTypeId,
                         ProvinceId = dest.ProvinceId,
+                        ImageUrl = dest.ImageUrl,
                         Province = new Province
                         {
                             ProvinceId = dest.Province.ProvinceId,
@@ -55,7 +54,7 @@ namespace POI.repository.Repositories
                             Status = dest.DestinationType.Status
                         },
                         DesHashtags = dest.DesHashtags,
-                        TripDestinations = dest.TripDestinations
+                        //TripDestinations = dest.TripDestinations
                     })
                     .Where(predicate);
             }
@@ -64,13 +63,14 @@ namespace POI.repository.Repositories
                     .Include(dest => dest.Province)
                     .Include(dest => dest.DesHashtags)
                     .ThenInclude(destHashtag => destHashtag.Hashtag)
-                    .Include(dest => dest.TripDestinations)
-                    .ThenInclude(tripDest => tripDest.Trip)
+                    //.Include(dest => dest.TripDestinations)
+                    //.ThenInclude(tripDest => tripDest.Trip)
                     .Select(dest => new Destination
                     {
                         DestinationId = dest.DestinationId,
                         DestinationName = dest.DestinationName,
                         Location = dest.Location,
+                        ImageUrl = dest.ImageUrl,
                         Status = dest.Status,
                         DestinationTypeId = dest.DestinationTypeId,
                         ProvinceId = dest.ProvinceId,
@@ -87,7 +87,7 @@ namespace POI.repository.Repositories
                             Status = dest.DestinationType.Status
                         },
                         DesHashtags = dest.DesHashtags,
-                        TripDestinations = dest.TripDestinations
+                        //TripDestinations = dest.TripDestinations
                     })
                     .Where(predicate);
         }

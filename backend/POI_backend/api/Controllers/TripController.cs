@@ -10,6 +10,9 @@ using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
+using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace POI.api.Controllers
 {
@@ -34,39 +37,50 @@ namespace POI.api.Controllers
         /// Get all trips
         /// </summary>
         /// <remarks>
-        /// Get all trips in POI system
+        /// Get all trips in POI system (Admin)
         /// 
         ///     No parameter
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Get()
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The trip is retrieved")]
+        [SwaggerResponse(404, "The trip is not found")]
+        public IActionResult GetTrip(Guid? userID)
         {
+            List<ResponseTripViewModel> result = null;
+            if (userID != null)
+            {
+                result = _tripService.GetTrips(m => m.User.UserId.Equals(userID), false);
+            }
+            else
+            {
+                result = _tripService.GetTrips(m => true, false);
+            }
             _logger.LogInformation("All destination is queried");
-            return Ok(_tripService.GetAll());
+            return Ok(result);
         }
 
         /// <summary>
         /// Get trip by ID
         /// </summary>
         /// <remarks>
-        /// Get trip in POI system with ID
+        /// Get trip in POI system with ID (Admin , User)
         /// 
         ///    ID : ID of trip 
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The destination is retrieved", typeof(ResponseTripViewModel))]
+        [SwaggerResponse(404, "The destination is not found")]
         public IActionResult Get(Guid id)
         {
-            Trip trip = _tripService.GetByID(id);
+            ResponseTripViewModel trip = _tripService.GetTrips(m => m.TripId.Equals(id), false).First();
             if (trip == null)
             {
                 return NotFound();
@@ -85,19 +99,20 @@ namespace POI.api.Controllers
         /// </remarks>
 
         [HttpPost]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Create successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public async Task<IActionResult> Post(CreateTripViewModel createTripViewModel)
         {
+            User currentUser = (User)HttpContext.Items["User"];
             _logger.LogInformation("Post request is called");
-            CreateEnum resultCode = await _tripService.CreateNewTrip(createTripViewModel);
-            if (resultCode == CreateEnum.Success)
+            Tuple<CreateEnum, Guid> result = await _tripService.CreateNewTrip(createTripViewModel, currentUser.UserId);
+            if (result.Item1 == CreateEnum.Success)
             {
-                return CreatedAtAction("Get", null);
+                return Get(result.Item2);
             }
-            else if (resultCode == CreateEnum.ErrorInServer)
+            else if (result.Item1 == CreateEnum.ErrorInServer)
             {
                 return StatusCode(500);
             }
@@ -114,12 +129,15 @@ namespace POI.api.Controllers
         /// Update your trip with name 
         /// </remarks>
         [HttpPut]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "Update successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdateTripViewModel updateTripViewModel)
         {
             _logger.LogInformation("Put request is called");
-            UpdateEnum resultCode = _tripService.UpdateTrip(updateTripViewModel);
+            User currentUser = (User)HttpContext.Items["User"];
+            UpdateEnum resultCode = _tripService.UpdateTrip(updateTripViewModel, currentUser.UserId);
             if (resultCode == UpdateEnum.Success)
             {
                 return Ok();
@@ -138,15 +156,18 @@ namespace POI.api.Controllers
         /// Finish trip  (Put method)
         /// </summary>
         /// <remarks>
-        /// Finish trip ưhen user end their trip and go home
+        /// Finish trip when user end their trip and go home
         /// </remarks>
         [HttpPut("finish-trip/{id}")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Finish trip successfully")]
+        [SwaggerResponse(400, "Trip is finished or archived")]
         public IActionResult FinishTrip(Guid id)
         {
             _logger.LogInformation("Put request is called");
-            UpdateEnum resultCode = _tripService.FinishTrip(id);
+            User currentUser = (User)HttpContext.Items["User"];
+            UpdateEnum resultCode = _tripService.FinishTrip(id, currentUser.UserId);
             if (resultCode == UpdateEnum.Success)
             {
                 return Ok();
@@ -154,6 +175,10 @@ namespace POI.api.Controllers
             else if (resultCode == UpdateEnum.ErrorInServer)
             {
                 return StatusCode(500);
+            }
+            else if (resultCode == UpdateEnum.NotOwner)
+            {
+                return BadRequest("You are not ownner of this trip");
             }
             else
             {
@@ -169,11 +194,15 @@ namespace POI.api.Controllers
         /// Deactivate trip by this id   
         /// </remarks>
         [HttpDelete("{id}")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
             _logger.LogInformation("Delete Request is called");
-            DeleteEnum resultCode = _tripService.ArchiveTrip(id);
+            User currentUser = (User)HttpContext.Items["User"];
+            DeleteEnum resultCode = _tripService.ArchiveTrip(id, currentUser.UserId);
             if (resultCode == DeleteEnum.Success)
             {
                 return Ok();
@@ -181,6 +210,10 @@ namespace POI.api.Controllers
             else if (resultCode == DeleteEnum.ErrorInServer)
             {
                 return StatusCode(500);
+            }
+            else if (resultCode == DeleteEnum.NotOwner)
+            {
+                return BadRequest("You are not ownner of this trip");
             }
             else
             {
@@ -195,7 +228,6 @@ namespace POI.api.Controllers
         /// Get trip destination entities on a trip
         /// </remarks>
         [HttpGet("{tripID}/destinations")]
-        [ProducesDefaultResponseType]
         public IActionResult GetTripDestination(Guid tripID)
         {
             return Ok(_tripDestinationService.GetAllTripDetinationsWithDestination(tripID));
@@ -209,10 +241,14 @@ namespace POI.api.Controllers
         /// Get trip destination entities when moving to new destination during a trip
         /// </remarks>
         [HttpPost("{tripID}/destinations")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Create new trip-destination successfully")]
+        [SwaggerResponse(400, "ID is not allowed to create")]
         public async Task<IActionResult> PostTripDestination(Guid tripID, Guid destinationID)
         {
-            CreateEnum resultCode = await _tripDestinationService.CreateNewTripDestination(tripID, destinationID);
+            User currentUser = (User)HttpContext.Items["User"];
+            CreateEnum resultCode = await _tripDestinationService.CreateNewTripDestination(tripID, destinationID, currentUser.UserId);
             switch (resultCode)
             {
                 case CreateEnum.Success:
@@ -223,6 +259,8 @@ namespace POI.api.Controllers
                     return BadRequest("Trip are not created or already finished or archived");
                 case CreateEnum.ErrorInServer:
                     return StatusCode(500);
+                case CreateEnum.NotOwner:
+                    return BadRequest("This trip is not belong to yours");
                 default:
                     return StatusCode(500);
             }

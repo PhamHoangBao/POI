@@ -9,6 +9,7 @@ namespace POI.repository.ResultEnums
         Success = 1,
         Error = 2,
         NothingChanged = 3,
-        ErrorInServer = 4
+        ErrorInServer = 4,
+        NotOwner = 5
     }
 }

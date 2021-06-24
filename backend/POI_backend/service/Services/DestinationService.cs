@@ -8,6 +8,7 @@ using POI.repository.ViewModels;
 using POI.repository.Enums;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace POI.service.Services
 {
@@ -16,7 +17,7 @@ namespace POI.service.Services
         public Task<CreateEnum> CreateNewDestination(CreateDestinationViewModel destination);
         public DeleteEnum DeactivateDestination(Guid id);
         public UpdateEnum UpdateDestination(UpdateDestinationViewModel destination);
-        public IQueryable<Destination> GetDestination(Expression<Func<Destination, bool>> predicate, bool istracked);
+        public List<ResponseDestinationViewModel> GetDestination(Expression<Func<Destination, bool>> predicate, bool istracked);
 
         public IQueryable<Destination> GetDetinationWithProvince(Guid provinceId);
     }
@@ -79,9 +80,12 @@ namespace POI.service.Services
             }
         }
 
-        public IQueryable<Destination> GetDestination(Expression<Func<Destination, bool>> predicate, bool istracked)
+        public List<ResponseDestinationViewModel> GetDestination(Expression<Func<Destination, bool>> predicate, bool istracked)
         {
-            return _destinationRepository.GetDestination(predicate, istracked);
+            IQueryable<Destination> destinations = _destinationRepository.GetDestination(predicate, istracked);
+            List<Destination> destinationList = destinations.ToList();
+            List<ResponseDestinationViewModel> responses = _mapper.Map<List<ResponseDestinationViewModel>>(destinationList);
+            return responses;
         }
 
         public IQueryable<Destination> GetDetinationWithProvince(Guid provinceId)

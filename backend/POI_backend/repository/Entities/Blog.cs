@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 #nullable disable
 
@@ -21,8 +22,11 @@ namespace POI.repository.Entities
         public int NegVotes { get; set; }
         public int Status { get; set; }
 
+        [JsonIgnore]
         public virtual User User { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Poiblog> Poiblogs { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Vote> Votes { get; set; }
     }
 }

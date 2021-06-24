@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Newtonsoft.Json;
 #nullable disable
 
 namespace POI.repository.Entities
@@ -19,7 +19,9 @@ namespace POI.repository.Entities
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
 
+        [JsonIgnore]
         public virtual User User { get; set; }
+        [JsonIgnore]
         public virtual ICollection<TripDestination> TripDestinations { get; set; }
     }
 }

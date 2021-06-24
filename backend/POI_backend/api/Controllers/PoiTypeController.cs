@@ -10,6 +10,9 @@ using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
+using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace POI.api.Controllers
 {
@@ -37,9 +40,10 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The POI types is retrieved", typeof(Poitype))]
+        [SwaggerResponse(404, "The POI types is not found")]
         public IActionResult Get()
         {
             _logger.LogInformation("All POIs are queried");
@@ -57,9 +61,10 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The POI type is retrieved", typeof(Poitype))]
+        [SwaggerResponse(404, "The POI type is not found")]
         public IActionResult Get(Guid id)
         {
             Poitype poiType = _poiTypeService.GetByID(id);
@@ -82,10 +87,10 @@ namespace POI.api.Controllers
         /// </remarks>
 
         [HttpPost]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Create successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public async Task<IActionResult> Post(CreatePoiTypeViewModel poiTypeViewModel)
         {
             _logger.LogInformation("Post request is called");
@@ -111,8 +116,10 @@ namespace POI.api.Controllers
         /// Update your poiType with name
         /// </remarks>
         [HttpPut]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin , Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "Update successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdatePoiTypeViewModel poiTypeViewModel)
         {
             _logger.LogInformation("Put request is called");
@@ -138,7 +145,10 @@ namespace POI.api.Controllers
         /// Deactivate poiType by this id   
         /// </remarks>
         [HttpDelete("{id}")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
             _logger.LogInformation("Delete Request is called");

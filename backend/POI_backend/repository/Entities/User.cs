@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
-
+using Newtonsoft.Json;
 #nullable disable
 
 namespace POI.repository.Entities
@@ -23,15 +21,20 @@ namespace POI.repository.Entities
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
-        [JsonIgnore]
         public string Password { get; set; }
         public Guid RoleId { get; set; }
         public int Status { get; set; }
+        public string Avatar { get; set; }
 
+        [JsonIgnore]
         public virtual Role Role { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Blog> Blogs { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Poi> Pois { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Trip> Trips { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Vote> Votes { get; set; }
     }
 }

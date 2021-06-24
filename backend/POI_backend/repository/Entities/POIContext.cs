@@ -38,7 +38,7 @@ namespace POI.repository.Entities
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=LAPTOP-U0JF1V7J\\HOANGBAO;User ID=sa;Password=hoangbao;Initial Catalog=POI", x => x.UseNetTopologySuite());
+                optionsBuilder.UseSqlServer("Data Source=poiapidbserver.database.windows.net;Initial Catalog=POI;User ID=TonyStark;Password=Hoangbao2000!", x => x.UseNetTopologySuite());
             }
         }
 
@@ -108,6 +108,8 @@ namespace POI.repository.Entities
 
                 entity.Property(e => e.DestinationTypeId).HasColumnName("DestinationTypeID");
 
+                entity.Property(e => e.ImageUrl).IsUnicode(false);
+
                 entity.Property(e => e.Location)
                     .IsRequired()
                     .HasColumnType("geometry");
@@ -167,6 +169,8 @@ namespace POI.repository.Entities
 
                 entity.Property(e => e.DestinationId).HasColumnName("DestinationID");
 
+                entity.Property(e => e.ImageUrl).IsUnicode(false);
+
                 entity.Property(e => e.Location)
                     .IsRequired()
                     .HasColumnType("geometry");
@@ -178,6 +182,12 @@ namespace POI.repository.Entities
                 entity.Property(e => e.PoiTypeId).HasColumnName("PoiTypeID");
 
                 entity.Property(e => e.UserId).HasColumnName("UserID");
+
+                entity.HasOne(d => d.Destination)
+                    .WithMany(p => p.Pois)
+                    .HasForeignKey(d => d.DestinationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_POI_Destination");
 
                 entity.HasOne(d => d.PoiType)
                     .WithMany(p => p.Pois)
@@ -223,6 +233,8 @@ namespace POI.repository.Entities
                 entity.Property(e => e.PoitypeId)
                     .HasColumnName("POITypeID")
                     .HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Icon).IsUnicode(false);
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -312,6 +324,8 @@ namespace POI.repository.Entities
                 entity.Property(e => e.UserId)
                     .HasColumnName("UserID")
                     .HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Avatar).IsUnicode(false);
 
                 entity.Property(e => e.Email)
                     .IsRequired()

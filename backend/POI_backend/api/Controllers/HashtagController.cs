@@ -10,6 +10,9 @@ using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
+using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace POI.api.Controllers
 {
@@ -31,16 +34,17 @@ namespace POI.api.Controllers
         /// Get all hashtags
         /// </summary>
         /// <remarks>
-        /// Get all hashtags in POI system
+        /// Get all hashtags in POI system (Admin)
         /// 
         ///     No parameter
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin")]
+        [SwaggerResponse(200, "All hashtag is retrieved", typeof(IEnumerable<Hashtag>))]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(404, "The destination is not found")]
         public IActionResult Get()
         {
             _logger.LogInformation("All hashtag is queried");
@@ -52,16 +56,17 @@ namespace POI.api.Controllers
         /// Get hashtag by ID
         /// </summary>
         /// <remarks>
-        /// Get hastag in POI system with ID
+        /// Get hastag in POI system with ID (Admin ,User)
         /// 
         ///    ID : ID of hashtag 
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The hashtag is retrieved", typeof(Hashtag))]
+        [SwaggerResponse(404, "The hashtag is not found")]
         public IActionResult Get(Guid id)
         {
             Hashtag hastag = _hashtagService.GetByID(id);
@@ -79,14 +84,15 @@ namespace POI.api.Controllers
         /// Create new hastag (Post method)
         /// </summary>
         /// <remarks>
-        /// Create new hastag 
+        /// Create new hastag  (Admin)
         /// </remarks>
 
         [HttpPost]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Create successfully")]
+        [SwaggerResponse(400, "Hashtag is not allowed to update")]
+        [SwaggerResponse(409, "Hashtag is conflict")]
         public async Task<IActionResult> Post(CreateHashtagViewModel hashtagViewModel)
         {
             _logger.LogInformation("Post request is called");
@@ -110,11 +116,13 @@ namespace POI.api.Controllers
         /// Update hashtag information (Put method)
         /// </summary>
         /// <remarks>
-        /// Update your hashtag with name and short name  
+        /// Update your hashtag with name and short name (Admin)
         /// </remarks>
         [HttpPut]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "Update successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdateHashtagViewModel hashtagViewModel)
         {
             _logger.LogInformation("Put request is called");
@@ -141,7 +149,9 @@ namespace POI.api.Controllers
         /// Deactivate hashtag by this id   
         /// </remarks>
         [HttpDelete("{id}")]
-        [ProducesDefaultResponseType]
+        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
             _logger.LogInformation("Delete Request is called");
@@ -156,7 +166,7 @@ namespace POI.api.Controllers
             }
             else
             {
-                return StatusCode(405);
+                return BadRequest();
             }
         }
 

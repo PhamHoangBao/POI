@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Newtonsoft.Json;
 #nullable disable
 
 namespace POI.repository.Entities
@@ -15,7 +15,9 @@ namespace POI.repository.Entities
         public double Rating { get; set; }
         public int Status { get; set; }
 
+        [JsonIgnore]
         public virtual Trip Trip { get; set; }
+        [JsonIgnore]
         public virtual User User { get; set; }
     }
 }

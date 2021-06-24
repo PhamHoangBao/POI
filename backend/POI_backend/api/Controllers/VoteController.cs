@@ -10,6 +10,8 @@ using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
+using Swashbuckle.AspNetCore.Annotations;
+
 
 namespace POI.api.Controllers
 {
@@ -42,7 +44,7 @@ namespace POI.api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Get()
         {
-            _logger.LogInformation("All destination is queried");
+            _logger.LogInformation("All votes is queried");
             return Ok(_voteService.GetAll());
         }
 

@@ -1,5 +1,4 @@
 ﻿using POI.repository.Entities;
-using POI.repository.IRepositories;
 
 namespace POI.repository.Repositories
 {

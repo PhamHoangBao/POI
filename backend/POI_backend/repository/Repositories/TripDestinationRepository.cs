@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 using POI.repository.Entities;
-using POI.repository.IRepositories;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using POI.repository.Enums;

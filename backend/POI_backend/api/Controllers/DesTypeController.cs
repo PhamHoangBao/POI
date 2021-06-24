@@ -9,6 +9,9 @@ using POI.repository.Entities;
 using POI.repository.ResultEnums;
 using POI.repository.ViewModels;
 using POI.service.Services;
+using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace POI.api.Controllers
 {
@@ -30,16 +33,17 @@ namespace POI.api.Controllers
         /// Get all destination types
         /// </summary>
         /// <remarks>
-        /// Get all destination types in POI system
+        /// Get all destination types in POI system (Admin)
         /// 
         ///     No parameter
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The destination types is retrieved", typeof(IEnumerable<DestinationType>))]
+        [SwaggerResponse(404, "No destination type is found")]
         public IActionResult Get()
         {
             _logger.LogInformation("All desType is queried");
@@ -51,16 +55,17 @@ namespace POI.api.Controllers
         /// Get destination type by ID
         /// </summary>
         /// <remarks>
-        /// Get destination type in POI system with ID
+        /// Get destination type in POI system with ID (Admin)
         /// 
         ///    ID : ID of destination type 
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The destination is retrieved", typeof(Destination))]
+        [SwaggerResponse(404, "The destination is not found")]
         public IActionResult Get(Guid id)
         {
             DestinationType desType = _desTypeService.GetByID(id);
@@ -78,14 +83,14 @@ namespace POI.api.Controllers
         /// Create new destination type (Post method)
         /// </summary>
         /// <remarks>
-        /// Create new destination type 
+        /// Create new destination type  (Admin)
         /// </remarks>
-
         [HttpPost]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(201, "Create dest type successfully")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(400, "The dest type is not created")]
+        [SwaggerResponse(409, "The dest type id is conflicted")]
         public async Task<IActionResult> Post(CreateDesTypeViewModel desTypeViewModel)
         {
             _logger.LogInformation("Post request is called");
@@ -109,11 +114,13 @@ namespace POI.api.Controllers
         /// Update destination type information (Put method)
         /// </summary>
         /// <remarks>
-        /// Update your destination type with name and short name  
+        /// Update your destination type with name and short name   (Admin)
         /// </remarks>
         [HttpPut]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "Update successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdateDesTypeViewModel desTypeViewModel)
         {
             _logger.LogInformation("Put request is called");
@@ -140,7 +147,10 @@ namespace POI.api.Controllers
         /// Deactivate destination type by this id   
         /// </remarks>
         [HttpDelete("{id}")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
             _logger.LogInformation("Delete Request is called");

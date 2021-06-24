@@ -10,11 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using POI.service.IServices;
 using POI.service.Services;
 using Microsoft.OpenApi.Models;
 using POI.repository.Entities;
-using POI.repository.IRepositories;
 using POI.repository.Repositories;
 using POI.repository.AutoMapper;
 using Swashbuckle.AspNetCore;
@@ -30,6 +28,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using AutoMapper;
 using NetTopologySuite;
+using Newtonsoft;
 
 namespace api
 {
@@ -98,7 +97,10 @@ namespace api
 
             //services
             services.AddControllers().AddNewtonsoftJson(
-                    options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                    options => 
+                    {
+                        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    }
                 );
             ;
 
@@ -112,7 +114,34 @@ namespace api
                     Description = "A POI API for tourism",
                 });
                 c.IncludeXmlComments(XmlCommentsFilePath);
+                c.EnableAnnotations();
+                // To Enable authorization using Swagger (JWT)  
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                          new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+
+                    }
+                });
             });
+            services.AddSwaggerGenNewtonsoftSupport();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -138,7 +167,7 @@ namespace api
 
             app.UseRouting();
 
-            //app.UseMiddleware<JwtMiddleware>();
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseAuthentication();
 

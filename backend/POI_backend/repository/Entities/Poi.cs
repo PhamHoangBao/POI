@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
-
+using Newtonsoft.Json;
 #nullable disable
 
 namespace POI.repository.Entities
@@ -22,9 +22,18 @@ namespace POI.repository.Entities
         public Geometry Location { get; set; }
         public double Rating { get; set; }
         public int Status { get; set; }
+        public string ImageUrl { get; set; }
 
+        [JsonIgnore]
+        public virtual Destination Destination { get; set; }
+        [JsonIgnore]
         public virtual Poitype PoiType { get; set; }
+        [JsonIgnore]
         public virtual User User { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Poiblog> Poiblogs { get; set; }
     }
 }
+
+
+

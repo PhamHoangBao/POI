@@ -6,6 +6,8 @@ using POI.repository.Entities;
 using POI.repository.Enums;
 using POI.repository.ViewModels;
 using NetTopologySuite.Geometries;
+using POI.repository.AutoMapper;
+using System.Linq;
 
 
 namespace POI.repository.AutoMapper
@@ -21,7 +23,15 @@ namespace POI.repository.AutoMapper
                 .ForMember(des => des.Location, options => options.MapFrom(src => new Point(src.Location.Longtitude, src.Location.Latitude)));
             mc.CreateMap<Destination, UpdateDestinationViewModel>();
             mc.CreateMap<UpdateDestinationViewModel, Destination>()
-                .ForMember(des => des.Status, options => options.MapFrom(src => DestinationEnum.Available));
+                .ForMember(des => des.Status, options => options.MapFrom(src => DestinationEnum.Available))
+                .ForMember(des => des.Location, options => options.MapFrom(src => new Point(src.Location.Longtitude, src.Location.Latitude)));
+            mc.CreateMap<Destination, ResponseDestinationViewModel>()
+                .ForMember(des => des.Location,
+                            options => options.MapFrom(src => new MyPoint(src.Location.Coordinate.Y, src.Location.Coordinate.X)))
+                .ForMember(des => des.HashTags,
+                            options => options.MapFrom(src => src.DesHashtags.Select(y => y.Hashtag).ToList()));
+
+
         }
     }
 }

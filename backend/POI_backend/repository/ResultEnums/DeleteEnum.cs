@@ -8,6 +8,7 @@ namespace POI.repository.ResultEnums
     {
         Success = 1,
         Failed = 2,
-        ErrorInServer = 3
+        ErrorInServer = 3,
+        NotOwner = 4
     }
 }

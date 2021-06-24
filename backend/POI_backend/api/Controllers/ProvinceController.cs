@@ -10,6 +10,9 @@ using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
+using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace POI.api.Controllers
 {
@@ -30,16 +33,17 @@ namespace POI.api.Controllers
         /// Get all provinces
         /// </summary>
         /// <remarks>
-        /// Get all provinces in POI system
+        /// Get all provinces in POI system (Admin)
         /// 
         ///     No parameter
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The provinces is retrieved", typeof(IEnumerable<Province>))]
+        [SwaggerResponse(404, "The province is not found")]
         public IActionResult Get()
         {
             _logger.LogInformation("All provinces is queried");
@@ -50,16 +54,17 @@ namespace POI.api.Controllers
         /// Get province by ID
         /// </summary>
         /// <remarks>
-        /// Get province in POI system with ID
+        /// Get province in POI system with ID (Amdin)
         /// 
         ///    ID : ID of province 
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The province is retrieved", typeof(ResponseDestinationViewModel))]
+        [SwaggerResponse(404, "The province is not found")]
         public IActionResult Get(Guid id)
         {
             Province province = _provinceService.GetByID(id);
@@ -78,14 +83,14 @@ namespace POI.api.Controllers
         /// Create new province (Post method)
         /// </summary>
         /// <remarks>
-        /// Create new province 
+        /// Create new province  (Admin)
         /// </remarks>
 
         [HttpPost]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Create successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public async Task<IActionResult> Post(CreateProvinceViewModel provinceViewModel)
         {
             _logger.LogInformation("Post request is called");
@@ -108,11 +113,13 @@ namespace POI.api.Controllers
         /// Update province information (Put method)
         /// </summary>
         /// <remarks>
-        /// Update your province with name
+        /// Update your province with name (Admin)
         /// </remarks>
         [HttpPut]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Update successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdateProvinceViewModel provinceViewModel)
         {
             _logger.LogInformation("Put request is called");
@@ -135,10 +142,13 @@ namespace POI.api.Controllers
         /// Deactivate an province (Delete method)
         /// </summary>
         /// <remarks>
-        /// Deactivate province by this id   
+        /// Deactivate province by this id (Admin)
         /// </remarks>
         [HttpDelete("{id}")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
             _logger.LogInformation("Delete Request is called");

@@ -10,6 +10,8 @@ using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
+using Microsoft.AspNetCore.Authorization;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace POI.api.Controllers
 {
@@ -37,14 +39,74 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The pois is retrieved", typeof(List<ResponsePoiViewModel>))]
+        [SwaggerResponse(404, "The pois is not found")]
         public IActionResult Get()
         {
             _logger.LogInformation("All POIs are queried");
-            return Ok(_poiService.GetAll());
+            return Ok(_poiService.GetPoi(m => true, false));
         }
+
+        /// <summary>
+        /// Get all pois which belong to a Destination
+        /// </summary>
+        /// <remarks>
+        /// Get all pois which belong to a Destination
+        /// 
+        ///     
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("destination/{destinationId}")]
+        [Authorize(Roles = "User, Admin , Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The poi is retrieved", typeof(List<ResponsePoiViewModel>))]
+        [SwaggerResponse(404, "The poi is not found")]
+        public IActionResult GetWithinDestination(Guid destinationId)
+        {
+            return Ok(_poiService.GetPoi(m => m.DestinationId.Equals(destinationId), false));
+        }
+
+        /// <summary>
+        /// Get poi from its user 
+        /// </summary>
+        /// <remarks>
+        /// Get all pois which belong to a Destination
+        /// 
+        ///     
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("post-by-user")]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The poi is retrieved", typeof(List<ResponsePoiViewModel>))]
+        [SwaggerResponse(404, "The poi is not found")]
+        public IActionResult GetPOIOfUser()
+        {
+            User currentUser = (User)HttpContext.Items["User"];
+            return Ok(_poiService.GetPoi(m => m.UserId.Equals(currentUser.UserId), false));
+        }
+
+        /// <summary>
+        /// Get poi from its user 
+        /// </summary>
+        /// <remarks>
+        /// Get all pois which belong to a Destination
+        /// 
+        ///     
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("post-by-user/{id}")]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The poi is retrieved", typeof(List<ResponsePoiViewModel>))]
+        [SwaggerResponse(404, "The poi is not found")]
+        public IActionResult GetPOIOfUserBySystem(Guid id)
+        {
+            return Ok(_poiService.GetPoi(m => m.UserId.Equals(id), false));
+        }
+
 
         /// <summary>
         /// Get poi by ID
@@ -57,12 +119,13 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Moderator, User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The poi is retrieved", typeof(ResponsePoiViewModel))]
+        [SwaggerResponse(404, "The poi is not found")]
         public IActionResult Get(Guid id)
         {
-            Poi poi = _poiService.GetByID(id);
+            ResponsePoiViewModel poi = _poiService.GetPoi(m => m.PoiId.Equals(id), false).First();
             if (poi == null)
             {
                 return NotFound();
@@ -82,14 +145,20 @@ namespace POI.api.Controllers
         /// </remarks>
 
         [HttpPost]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin, Moderator, User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Create successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public async Task<IActionResult> Post(CreatePoiViewModel poiViewModel)
         {
+            User currentUser = (User)HttpContext.Items["User"];
+            Guid userID = Guid.Empty;
+            if (currentUser.Role.RoleName.Equals("User"))
+            {
+                userID = currentUser.UserId;
+            }
             _logger.LogInformation("Post request is called");
-            CreateEnum resultCode = await _poiService.CreateNewPoi(poiViewModel);
+            CreateEnum resultCode = await _poiService.CreateNewPoi(poiViewModel, userID);
             if (resultCode == CreateEnum.Success)
             {
                 return CreatedAtAction("Get", null);
@@ -111,8 +180,10 @@ namespace POI.api.Controllers
         /// Update your poi with name
         /// </remarks>
         [HttpPut]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin , Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "Update successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdatePoiViewModel poiViewModel)
         {
             _logger.LogInformation("Put request is called");
@@ -138,7 +209,10 @@ namespace POI.api.Controllers
         /// Deactivate poi by this id   
         /// </remarks>
         [HttpDelete("{id}")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
             _logger.LogInformation("Delete Request is called");
@@ -158,37 +232,34 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
-        /// Post a new poi by user (Post method)
+        /// Approve a new POI from user
         /// </summary>
         /// <remarks>
-        /// Post a new POI by user. POI status is Pending
+        /// Approve a new POI from user
+        /// 
         /// </remarks>
-        [HttpPost("user")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> PostNewPOIByUser(CreatePoiByUserViewModel poiViewModel)
+        /// <returns></returns>
+        [HttpPut("approve/{id}")]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The pois is retrieved", typeof(List<ResponsePoiViewModel>))]
+        [SwaggerResponse(404, "The pois is not found")]
+        public IActionResult ApprovePOI(Guid id)
         {
-            _logger.LogInformation("Post request is called");
-            CreateEnum resultCode = await _poiService.CreateNewPoi(poiViewModel);
-            if (resultCode == CreateEnum.Success)
-            { 
-                return CreatedAtAction("Get", null);
+            _logger.LogInformation("Delete Request is called");
+            UpdateEnum resultCode = _poiService.ApprovePOI(id);
+            if (resultCode == UpdateEnum.Success)
+            {
+                return Ok();
             }
-            else if (resultCode == CreateEnum.ErrorInServer)
+            else if (resultCode == UpdateEnum.ErrorInServer)
             {
                 return StatusCode(500);
             }
             else
             {
-                return BadRequest("POI is already exist");
+                return BadRequest("No POI found ");
             }
         }
-
-
-  
-
-
     }
 }

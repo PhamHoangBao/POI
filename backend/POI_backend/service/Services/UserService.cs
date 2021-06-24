@@ -128,16 +128,16 @@ namespace POI.service.Services
         {
             // generate token that is valid for 3 minutes
             var tokenHandler = new JwtSecurityTokenHandler();
-            Console.WriteLine("Secret" + _appSettings.Secret);
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[] 
                 { 
-                    new Claim(ClaimTypes.Name, user.UserId.ToString()) ,
-                    new Claim(ClaimTypes.Role, user.Role.RoleName)
+                    new Claim("id", user.UserId.ToString()) ,
+                    new Claim(ClaimTypes.Role, user.Role.RoleName),
+                    new Claim(ClaimTypes.Email, user.Email),
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(10),
+                Expires = DateTime.UtcNow.AddMinutes(60),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

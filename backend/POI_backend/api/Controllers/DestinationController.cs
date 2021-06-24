@@ -10,6 +10,8 @@ using POI.repository.ResultEnums;
 using POI.repository.ViewModels;
 using POI.service.Services;
 using POI.repository.Enums;
+using Microsoft.AspNetCore.Authorization;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace POI.api.Controllers
 {
@@ -32,27 +34,6 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Get all destinations
-        /// </summary>
-        /// <remarks>
-        /// Get all destinations in POI system
-        /// 
-        ///     No parameter
-        ///     
-        /// </remarks>
-        /// <returns></returns>
-        [HttpGet]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Get()
-        {
-            _logger.LogInformation("All destination is queried");
-            return Ok(_destinationService.GetDestination(m => m.Status == (int) DestinationEnum.Available, false));
-        }
-
-
-        /// <summary>
         /// Get destination by ID
         /// </summary>
         /// <remarks>
@@ -63,12 +44,13 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The destination is retrieved", typeof(ResponseDestinationViewModel))]
+        [SwaggerResponse(404, "The destination is not found")]
         public IActionResult Get(Guid id)
         {
-            Destination destination = _destinationService.GetDestination(m => m.DestinationId.Equals(id), false).First();
+            ResponseDestinationViewModel destination = _destinationService.GetDestination(m => m.DestinationId.Equals(id), false).First();
             if (destination == null)
             {
                 return NotFound();
@@ -87,10 +69,10 @@ namespace POI.api.Controllers
         /// </remarks>
 
         [HttpPost]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Create successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public async Task<IActionResult> Post(CreateDestinationViewModel destinationViewModel)
         {
             _logger.LogInformation("Post request is called");
@@ -105,7 +87,7 @@ namespace POI.api.Controllers
             }
             else
             {
-                return Conflict();
+                return BadRequest();
             }
         }
 
@@ -117,15 +99,17 @@ namespace POI.api.Controllers
         /// Update your destination with name and short name  
         /// </remarks>
         [HttpPut]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "Admin , Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "Update successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdateDestinationViewModel destinationViewModel)
         {
             _logger.LogInformation("Put request is called");
             UpdateEnum resultCode = _destinationService.UpdateDestination(destinationViewModel);
             if (resultCode == UpdateEnum.Success)
             {
-                return Ok();
+                return Get(destinationViewModel.DestinationId);
             }
             else if (resultCode == UpdateEnum.ErrorInServer)
             {
@@ -133,7 +117,7 @@ namespace POI.api.Controllers
             }
             else
             {
-                return StatusCode(405);
+                return BadRequest();
             }
         }
 
@@ -145,7 +129,10 @@ namespace POI.api.Controllers
         /// Deactivate destination by this id   
         /// </remarks>
         [HttpDelete("{id}")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
             _logger.LogInformation("Delete Request is called");
@@ -160,7 +147,7 @@ namespace POI.api.Controllers
             }
             else
             {
-                return StatusCode(405);
+                return BadRequest();
             }
         }
 
@@ -171,14 +158,17 @@ namespace POI.api.Controllers
         /// Assign hashtag to destination  
         /// </remarks>
         [HttpPost("{destinationID}/hashtag")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "Admin, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "The destination was updated with new hashtag", typeof(ResponseDestinationViewModel))]
+        [SwaggerResponse(400, "The destination or hashtag data is invalid")]
         public async Task<IActionResult> AssignHashtagToDestination(Guid destinationID, Guid hashtagID)
         {
             CreateEnum resultCode = await _desHashtagService.CreateNewDesHashtag(destinationID, hashtagID);
             switch (resultCode)
             {
                 case CreateEnum.Success:
-                    return Created(nameof(Get), destinationID);
+                    return Get(destinationID);
                 case CreateEnum.Duplicate:
                     return BadRequest("This destination and hashtag is already assigned");
                 case CreateEnum.Error:
@@ -191,45 +181,58 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
-        /// Get Destination with hashtag
+        /// Get Destination within Province and have hashtag
         /// </summary>
         /// <remarks>
-        /// Get Destination with hashtag 
+        /// Get Destination within Province and have hashtag. This api can search both option or one only
+        /// Sample request:
+        ///
+        ///     GET /user/find
+        ///     {
+        ///        "provinceId": "",
+        ///        "hashtagId": "",
+        ///     }
+        ///
         /// </remarks>
-        [HttpGet("hashtag/{hashtagID}")]
+        /// <returns>Return list of destinations that satisfy conditions</returns>
+        /// <response code="200">Returns list of destinations that satisfy condition</response>
+        /// <response code="404">If the list is empty</response> 
+        [HttpGet]
         [ProducesDefaultResponseType]
-        public IActionResult GetDestinationWithHashtag(Guid hashtagID)
+        [Authorize(Roles = "Admin, User, Moderator")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The list of destination is retrieved", typeof(List<ResponseDestinationViewModel>))]
+        [SwaggerResponse(404, "The list of destination is not found")]
+        public IActionResult Get(Guid? provinceID, Guid? hashtagId)
         {
-            IQueryable<DesHashtag> destHastags = _desHashtagService.GetDestinationWithHashtagID(hashtagID);
-            if (destHastags == null)
+            List<ResponseDestinationViewModel> result = null;
+            if (provinceID != null && hashtagId != null)
             {
-                return NotFound();
+                result = _destinationService.GetDestination(m =>
+                          m.ProvinceId.Equals(provinceID) && m.DesHashtags.Where(d => d.HashtagId.Equals(hashtagId)).Any()
+                          , false);
+            }
+            else if (provinceID != null && hashtagId == null)
+            {
+                result = _destinationService.GetDestination(m => m.ProvinceId.Equals(provinceID), false);
+            }
+            else if (provinceID == null && hashtagId != null)
+            {
+                result = _destinationService.GetDestination(m => m.DesHashtags.Where(d => d.HashtagId.Equals(hashtagId)).Any(), false);
             }
             else
             {
-                return Ok(destHastags);
+                result = _destinationService.GetDestination(m => true, false);
             }
-        }
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return NotFound();
+            }
 
-        /// <summary>
-        /// Get Destination within Province
-        /// </summary>
-        /// <remarks>
-        /// Get Destination within Province
-        /// </remarks>
-        [HttpGet("province/{provinceID}")]
-        [ProducesDefaultResponseType]
-        public IActionResult GetDestinationWithinProvince(Guid provinceID)
-        {
-            IQueryable<Destination> destinations = _destinationService.GetDetinationWithProvince(provinceID);
-            if (destinations == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Ok(destinations);
-            }
         }
     }
 }
