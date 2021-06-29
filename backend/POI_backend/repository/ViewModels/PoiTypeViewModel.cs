@@ -7,11 +7,14 @@ namespace POI.repository.ViewModels
     public class CreatePoiTypeViewModel
     {
         public string Name { get; set; }
+        public string Icon { get; set; }
     }
 
     public class UpdatePoiTypeViewModel
     {
         public Guid PoitypeId { get; set; }
         public string Name { get; set; }
+        public string Icon { get; set; }
+
     }
 }

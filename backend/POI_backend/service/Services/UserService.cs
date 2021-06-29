@@ -27,22 +27,50 @@ namespace POI.service.Services
         UpdateEnum UpdateUser(UpdateUserViewModel user);
         DeleteEnum DeactivateUser(Guid id);
         User GetUserWithRole(Expression<Func<User, bool>> predicate, bool istracked);
-
+        Task<CreateEnum> RegisterNewUser(RegisterUserRequest model);
         AuthenticatedUserViewModel AuthenticateUser(AuthenticatedUserRequest model);
+        Task<UpdateEnum> ChangePassword(Guid userId, string oldPassword, string newPassword);
     }
     public class UserService : GenericService<User>, IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IRoleRepository _roleRepository;
         private readonly AppSettings _appSettings;
 
         public UserService(IUserRepository userRepository
             , IMapper mapper
+            , IRoleRepository roleRepository
             , IOptions<AppSettings> appSettings) : base(userRepository)
         {
             _mapper = mapper;
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
             _appSettings = appSettings.Value;
+        }
+
+        public async Task<CreateEnum> RegisterNewUser(RegisterUserRequest model)
+        {
+            if (await FirstOrDefaultAsync(m => m.Email.Equals(model.Email), false) != null)
+            {
+                return CreateEnum.Duplicate;
+            }
+            else
+            {
+                var entity = _mapper.Map<User>(model);
+                //var userRole = _roleRepository.FirstOrDefault(m => m.RoleName.Equals("User"), false);
+                //entity.RoleId = userRole.RoleId;
+                try
+                {
+                    await AddAsync(entity);
+                    await SaveChangesAsync();
+                    return CreateEnum.Success;
+                }
+                catch
+                {
+                    return CreateEnum.ErrorInServer;
+                }
+            }
         }
 
         public async Task<CreateEnum> CreateNewUser(CreateUserViewModel user)
@@ -98,13 +126,19 @@ namespace POI.service.Services
 
         public UpdateEnum UpdateUser(UpdateUserViewModel user)
         {
-            if (!FirstOrDefault(m => m.UserId.Equals(user.UserId), false).Email.Equals(user.Email))
+            var currentUser = FirstOrDefault(m => m.UserId.Equals(user.UserId), false);
+            if (!currentUser.Email.Equals(user.Email))
             {
                 return UpdateEnum.Error;
             }
             else
             {
                 var entity = _mapper.Map<User>(user);
+                entity.Password = currentUser.Password;
+                if (entity.RoleId == null || entity.RoleId.Equals(Guid.Empty))
+                {
+                    entity.RoleId = _roleRepository.FirstOrDefault(m => m.RoleName.Equals("User"), false).RoleId;
+                }
                 try
                 {
                     Update(entity);
@@ -131,8 +165,8 @@ namespace POI.service.Services
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[] 
-                { 
+                Subject = new ClaimsIdentity(new Claim[]
+                {
                     new Claim("id", user.UserId.ToString()) ,
                     new Claim(ClaimTypes.Role, user.Role.RoleName),
                     new Claim(ClaimTypes.Email, user.Email),
@@ -146,7 +180,9 @@ namespace POI.service.Services
 
         public AuthenticatedUserViewModel AuthenticateUser(AuthenticatedUserRequest model)
         {
-            User user = _userRepository.GetUserWithRole(m => m.Email.Equals(model.Email) && m.Password.Equals(model.Password), false);
+            User user = _userRepository.GetUserWithRole(m => m.Email.Trim().Equals(model.Email.Trim())
+                                && m.Password.Trim().Equals(model.Password.Trim())
+                                && m.Status == (int)UserEnum.Active, false);
             if (user == null)
             {
                 return null;
@@ -161,6 +197,37 @@ namespace POI.service.Services
             AuthenticatedUserViewModel entity = _mapper.Map<AuthenticatedUserViewModel>(user);
             entity.Token = token;
             return entity;
+        }
+
+        public async Task<UpdateEnum> ChangePassword(Guid userId, string oldPassword, string newPassword)
+        {
+            User user = await _userRepository.FirstOrDefaultAsync(m => m.UserId.Equals(userId), false);
+            if (user == null)
+            {
+                Console.WriteLine("A");
+                return UpdateEnum.Error;
+            }
+            else if (!user.Password.Equals(oldPassword))
+            {
+                Console.WriteLine("A1");
+                return UpdateEnum.Error;
+            }
+            else
+            {
+                user.Password = newPassword;
+                try
+                {
+                    Console.WriteLine("A2");
+                    Update(user);
+                    Savechanges();
+                    return UpdateEnum.Success;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return UpdateEnum.ErrorInServer;
+                }
+            }
         }
     }
 }

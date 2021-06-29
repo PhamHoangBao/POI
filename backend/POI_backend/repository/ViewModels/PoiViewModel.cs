@@ -15,9 +15,7 @@ namespace POI.repository.ViewModels
         public MyPoint Location { get; set; }
     }
 
-    public class CreatePoiByUserViewModel : CreatePoiViewModel
-    {
-    }
+    
 
     public class UpdatePoiViewModel
     {
@@ -27,6 +25,7 @@ namespace POI.repository.ViewModels
         public string ImageUrl { get; set; }
         public Guid DestinationId { get; set; }
         public string Description { get; set; }
+        public Guid? UserId { get; set; }
         public MyPoint Location { get; set; }
     }
 

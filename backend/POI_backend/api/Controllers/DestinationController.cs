@@ -39,12 +39,19 @@ namespace POI.api.Controllers
         /// <remarks>
         /// Get destination in POI system with ID
         /// 
-        ///    ID : ID of destination 
+        /// Authorize : User, Admin , Moderator
+        /// Sample request:
+        ///
+        ///     GET /destination
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
+        ///
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin, User")]
+        [Authorize(Roles = "Admin, User, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The destination is retrieved", typeof(ResponseDestinationViewModel))]
         [SwaggerResponse(404, "The destination is not found")]
@@ -62,10 +69,28 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
-        /// Create new destination (Post method)
+        /// Create new destination 
         /// </summary>
         /// <remarks>
         /// Create new destination 
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Sample request:
+        ///
+        ///     POST /destination
+        ///     {
+        ///         "destinationName": "Vườn dâu tây Đà Lạt",
+        ///         "location": {
+        ///              "latitude": 0,
+        ///              "longtitude": 0
+        ///         },
+        ///         "provinceId": "a589b039-a021-435a-8328-71f824ce9a30",
+        ///         "imageUrl": "string of Firebase image url",
+        ///         "destinationTypeId": "3be4e631-8c25-4eff-af3b-d3ad882e362a"
+        ///     }
+        ///
+        ///  
         /// </remarks>
 
         [HttpPost]
@@ -93,10 +118,28 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Update destination information (Put method)
+        /// Update destination information 
         /// </summary>
         /// <remarks>
-        /// Update your destination with name and short name  
+        /// Update your destination with new location, image url, province or destination type.
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Sample request:
+        ///
+        ///     PUT /destination
+        ///     {
+        ///         "destinationId" : "2298e97d-c8eb-4e48-8ddd-b37d3ffec2bf"
+        ///         "destinationName": "Vườn dâu tây Đà Lạt",
+        ///         "location": {
+        ///              "latitude": 0,
+        ///              "longtitude": 0
+        ///         },
+        ///         "provinceId": "a589b039-a021-435a-8328-71f824ce9a30",
+        ///         "imageUrl": "string of Firebase image url",
+        ///         "destinationTypeId": "3be4e631-8c25-4eff-af3b-d3ad882e362a"
+        ///     }
+        ///
         /// </remarks>
         [HttpPut]
         [Authorize(Roles = "Admin , Moderator")]
@@ -123,10 +166,20 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Deactivate an destination (Delete method)
+        /// Deactivate an destination
         /// </summary>
         /// <remarks>
         /// Deactivate destination by this id   
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Sample request:
+        ///
+        ///     DELETE /destination
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
+        ///
         /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin, Moderator")]
@@ -155,7 +208,18 @@ namespace POI.api.Controllers
         /// Assign hashtag to destination
         /// </summary>
         /// <remarks>
+        /// Authorize : Admin , Moderator
+        /// 
         /// Assign hashtag to destination  
+        /// 
+        /// Sample request:
+        ///
+        ///     POST /destination/{destinationID}/hashtag
+        ///     {
+        ///        "destinationID": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///        "hashtagID": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
+        ///
         /// </remarks>
         [HttpPost("{destinationID}/hashtag")]
         [Authorize(Roles = "Admin, Moderator")]
@@ -181,16 +245,19 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
-        /// Get Destination within Province and have hashtag
+        /// Get Destination with Province ,hashtag and name
         /// </summary>
         /// <remarks>
-        /// Get Destination within Province and have hashtag. This api can search both option or one only
+        /// Authorize : Admin , Moderator, User
+        /// 
+        /// Get Destination within Province , contain hashtag or have name that satify condition. This api can search all options or one only
         /// Sample request:
         ///
-        ///     GET /user/find
+        ///     GET /destination
         ///     {
-        ///        "provinceId": "",
-        ///        "hashtagId": "",
+        ///        "provinceId": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///        "hashtagId": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///        "destinationName : "a"
         ///     }
         ///
         /// </remarks>
@@ -203,27 +270,15 @@ namespace POI.api.Controllers
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The list of destination is retrieved", typeof(List<ResponseDestinationViewModel>))]
         [SwaggerResponse(404, "The list of destination is not found")]
-        public IActionResult Get(Guid? provinceID, Guid? hashtagId)
+        public IActionResult Get(Guid? provinceID, Guid? hashtagId, string? destinationName)
         {
             List<ResponseDestinationViewModel> result = null;
-            if (provinceID != null && hashtagId != null)
-            {
-                result = _destinationService.GetDestination(m =>
-                          m.ProvinceId.Equals(provinceID) && m.DesHashtags.Where(d => d.HashtagId.Equals(hashtagId)).Any()
-                          , false);
-            }
-            else if (provinceID != null && hashtagId == null)
-            {
-                result = _destinationService.GetDestination(m => m.ProvinceId.Equals(provinceID), false);
-            }
-            else if (provinceID == null && hashtagId != null)
-            {
-                result = _destinationService.GetDestination(m => m.DesHashtags.Where(d => d.HashtagId.Equals(hashtagId)).Any(), false);
-            }
-            else
-            {
-                result = _destinationService.GetDestination(m => true, false);
-            }
+
+            result = _destinationService.GetDestination(m =>
+                        (provinceID == null || m.ProvinceId.Equals(provinceID))
+                     && (hashtagId == null || m.DesHashtags.Where(d => d.HashtagId.Equals(hashtagId)).Any())
+                     && (destinationName == null || m.DestinationName.Contains(destinationName))
+            , false);
             if (result != null)
             {
                 return Ok(result);

@@ -4,62 +4,288 @@
         <name>POI.api</name>
     </assembly>
     <members>
-        <member name="M:POI.api.Controllers.DestinationController.Get(System.Guid)">
+        <member name="M:POI.api.Controllers.BlogController.Post(POI.repository.ViewModels.CreateBlogViewModel)">
             <summary>
-            Get destination by ID
+            Create a new blog of the trip 
             </summary>
             <remarks>
-            Get destination in POI system with ID
+            Authorize : User
             
-               ID : ID of destination 
+            Create Blog from User. Blog related with Trip, list of POI
+            
+            Sample request
+            
+                POST /blog
+                {
+                   "tripID": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                   "title" : "String",
+                   "content" : "String",
+                   "pois" : [
+                            "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                            "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18"
+                            ]
+                } 
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.BlogController.Put(POI.repository.ViewModels.UpdateBlogViewModel)">
+            <summary>
+            Update the blog of the trip 
+            </summary>
+            <remarks>
+            Authorize : User
+            
+            Update Blog from User. Blog related with Trip, list of POI
+            
+            Sample request
+            
+                PUT /blog
+                {
+                   "blogId": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                   "tripId": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                   "title" : "String",
+                   "content" : "String",
+                   "pois" : [
+                            "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                            "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18"
+                            ]
+                } 
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.BlogController.Delete(System.Guid)">
+             <summary>
+             Deactivate an blog
+             </summary>
+             <remarks>
+             Authorize : User
+             
+             Deactivate blog by this id   
+             
+             Sample request:
+            
+                 DELETE /blog
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.BlogController.AcceptBlog(System.Guid)">
+            <summary>
+            Accept Blog by admin 
+            </summary>
+            <remarks>
+            Authorize : Admin, Moderator
+            
+            Accept Blog by admin 
+            
+            Sampe request: 
+            
+                POST /trip/accept/{id}
+                {
+                   "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                } 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.BlogController.GetAllBlogs">
+            <summary>
+            Get all blogs
+            </summary>
+            <remarks>
+            
+            Authorize : Admin , Moderator, User
+            
+            Get all blogs in POI system. Will be used in Mobile blog view or admin mobile blog view.
+            
+                No parameter
                 
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:POI.api.Controllers.DestinationController.Post(POI.repository.ViewModels.CreateDestinationViewModel)">
+        <member name="M:POI.api.Controllers.BlogController.GetAllBlogsOfUser">
             <summary>
-            Create new destination (Post method)
+            Get all blogs of user (who send this request)
             </summary>
             <remarks>
-            Create new destination 
+            
+            Authorize : User
+            
+            Get all blogs of current user in POI system. Will be used in Mobile blog view 
+             
+                No parameter
+                
             </remarks>
+            <returns></returns>
         </member>
-        <member name="M:POI.api.Controllers.DestinationController.Put(POI.repository.ViewModels.UpdateDestinationViewModel)">
+        <member name="M:POI.api.Controllers.BlogController.GetBlogOfUser(System.Guid)">
             <summary>
-            Update destination information (Put method)
+            Get blog of that user own it or admin, moderator want to read it
             </summary>
             <remarks>
-            Update your destination with name and short name  
+            
+            Authorize : Admin , Moderator, User
+            
+             Get blog of that user own it or admin, moderator want to read it. Will be used in Mobile blog view 
+             Blog can be pending or available or disable
+             
+                
+                
             </remarks>
+            <returns></returns>
         </member>
-        <member name="M:POI.api.Controllers.DestinationController.Delete(System.Guid)">
+        <member name="M:POI.api.Controllers.BlogController.GetBlog(System.Guid)">
             <summary>
-            Deactivate an destination (Delete method)
+            Get a blog for user to reading 
             </summary>
             <remarks>
-            Deactivate destination by this id   
+            
+            Authorize : User
+            
+             Get a blog for user to reading . Will be used in Mobile blog view. It can be their blog or another user's blog
+             
+                
+                
             </remarks>
+            <returns></returns>
         </member>
-        <member name="M:POI.api.Controllers.DestinationController.AssignHashtagToDestination(System.Guid,System.Guid)">
+        <member name="M:POI.api.Controllers.BlogController.Vote(POI.repository.ViewModels.VoteViewModel)">
             <summary>
-            Assign hashtag to destination
+            Vote a blog
             </summary>
             <remarks>
-            Assign hashtag to destination  
+            
+            Authorize : User
+            
+            React to blog. It must be like, dislike or NoReaction (This was like, dislike but now user unlike or undislike it)
+            
+                No parameter
+                
             </remarks>
+            <returns></returns>
         </member>
-        <member name="M:POI.api.Controllers.DestinationController.Get(System.Nullable{System.Guid},System.Nullable{System.Guid})">
+        <member name="M:POI.api.Controllers.DestinationController.Get(System.Guid)">
              <summary>
-             Get Destination within Province and have hashtag
+             Get destination by ID
              </summary>
              <remarks>
-             Get Destination within Province and have hashtag. This api can search both option or one only
+             Get destination in POI system with ID
+             
+             Authorize : User, Admin , Moderator
              Sample request:
             
-                 GET /user/find
+                 GET /destination
                  {
-                    "provinceId": "",
-                    "hashtagId": "",
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+            
+                 
+             </remarks>
+             <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.Post(POI.repository.ViewModels.CreateDestinationViewModel)">
+             <summary>
+             Create new destination 
+             </summary>
+             <remarks>
+             Create new destination 
+             
+             Authorize : Admin , Moderator
+             
+             Sample request:
+            
+                 POST /destination
+                 {
+                     "destinationName": "Vườn dâu tây Đà Lạt",
+                     "location": {
+                          "latitude": 0,
+                          "longtitude": 0
+                     },
+                     "provinceId": "a589b039-a021-435a-8328-71f824ce9a30",
+                     "imageUrl": "string of Firebase image url",
+                     "destinationTypeId": "3be4e631-8c25-4eff-af3b-d3ad882e362a"
+                 }
+            
+              
+             </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.Put(POI.repository.ViewModels.UpdateDestinationViewModel)">
+             <summary>
+             Update destination information 
+             </summary>
+             <remarks>
+             Update your destination with new location, image url, province or destination type.
+             
+             Authorize : Admin , Moderator
+             
+             Sample request:
+            
+                 PUT /destination
+                 {
+                     "destinationId" : "2298e97d-c8eb-4e48-8ddd-b37d3ffec2bf"
+                     "destinationName": "Vườn dâu tây Đà Lạt",
+                     "location": {
+                          "latitude": 0,
+                          "longtitude": 0
+                     },
+                     "provinceId": "a589b039-a021-435a-8328-71f824ce9a30",
+                     "imageUrl": "string of Firebase image url",
+                     "destinationTypeId": "3be4e631-8c25-4eff-af3b-d3ad882e362a"
+                 }
+            
+             </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.Delete(System.Guid)">
+             <summary>
+             Deactivate an destination
+             </summary>
+             <remarks>
+             Deactivate destination by this id   
+             
+             Authorize : Admin , Moderator
+             
+             Sample request:
+            
+                 DELETE /destination
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+            
+             </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.AssignHashtagToDestination(System.Guid,System.Guid)">
+             <summary>
+             Assign hashtag to destination
+             </summary>
+             <remarks>
+             Authorize : Admin , Moderator
+             
+             Assign hashtag to destination  
+             
+             Sample request:
+            
+                 POST /destination/{destinationID}/hashtag
+                 {
+                    "destinationID": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                    "hashtagID": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+            
+             </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.DestinationController.Get(System.Nullable{System.Guid},System.Nullable{System.Guid},System.String)">
+             <summary>
+             Get Destination with Province ,hashtag and name
+             </summary>
+             <remarks>
+             Authorize : Admin , Moderator, User
+             
+             Get Destination within Province , contain hashtag or have name that satify condition. This api can search all options or one only
+             Sample request:
+            
+                 GET /destination
+                 {
+                    "provinceId": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                    "hashtagId": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                    "destinationName : "a"
                  }
             
              </remarks>
@@ -72,7 +298,10 @@
             Get all destination types
             </summary>
             <remarks>
-            Get all destination types in POI system (Admin)
+            Authorize : Admin , Moderator
+            
+            Get all destination types in POI system 
+            
             
                 No parameter
                 
@@ -80,47 +309,84 @@
             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.DesTypeController.Get(System.Guid)">
-            <summary>
-            Get destination type by ID
-            </summary>
-            <remarks>
-            Get destination type in POI system with ID (Admin)
+             <summary>
+             Get destination type by ID
+             </summary>
+             <remarks>
+             Authorize : Admin , Moderator
+             
+             Get destination type in POI system with ID 
+             Sample request:
             
-               ID : ID of destination type 
-                
-            </remarks>
-            <returns></returns>
+                 GET /desType
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
+             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.DesTypeController.Post(POI.repository.ViewModels.CreateDesTypeViewModel)">
-            <summary>
-            Create new destination type (Post method)
-            </summary>
-            <remarks>
-            Create new destination type  (Admin)
-            </remarks>
+             <summary>
+             Create new destination type 
+             </summary>
+             <remarks>
+             Authorize : Admin , Moderator
+             Sample request:
+            
+                 POST /desType
+                 {
+                    "name": "Vui chơi",
+                 }      
+                 
+             Create new destination type  
+             
+             
+             </remarks>
         </member>
         <member name="M:POI.api.Controllers.DesTypeController.Put(POI.repository.ViewModels.UpdateDesTypeViewModel)">
-            <summary>
-            Update destination type information (Put method)
-            </summary>
-            <remarks>
-            Update your destination type with name and short name   (Admin)
-            </remarks>
+             <summary>
+             Update destination type information
+             </summary>
+             <remarks>
+             
+             Authorize : Admin , Moderator
+             
+             Update your destination type with name and short name 
+             
+             Sample request:
+            
+                 PUT /desType
+                 {
+                     "destinationTypeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                     "name": "Vui chơi",
+                 }      
+             </remarks>
         </member>
         <member name="M:POI.api.Controllers.DesTypeController.Delete(System.Guid)">
-            <summary>
-            Deactivate an destination type (Delete method)
-            </summary>
-            <remarks>
-            Deactivate destination type by this id   
-            </remarks>
+             <summary>
+             Deactivate an destination type
+             </summary>
+             <remarks>
+             Authorize : Admin , Moderator
+             
+             Deactivate destination type by this id   
+             
+             Sample request:
+            
+                 DELETE /desType
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
         </member>
         <member name="M:POI.api.Controllers.HashtagController.Get">
             <summary>
             Get all hashtags
             </summary>
             <remarks>
-            Get all hashtags in POI system (Admin)
+            Authorize : Admin , Moderator
+            
+            Get all hashtags in POI system 
             
                 No parameter
                 
@@ -132,42 +398,81 @@
             Get hashtag by ID
             </summary>
             <remarks>
-            Get hastag in POI system with ID (Admin ,User)
+            Authorize : Admin , Moderator, User
             
-               ID : ID of hashtag 
-                
+            Get hastag in POI system with ID 
+            
+            Sample Request
+            
+                GET /hashtag
+                {
+                   "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                }    
             </remarks>
             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.HashtagController.Post(POI.repository.ViewModels.CreateHashtagViewModel)">
             <summary>
-            Create new hastag (Post method)
+            Create new hastag 
             </summary>
             <remarks>
-            Create new hastag  (Admin)
+            Authorize : Admin , Moderator
+            Create new hastag 
+            Sample Request
+                POST /hashtag
+                {
+                   "name": "Vui chơi lớn",
+                   "shortName": "VCL"
+                }      
+              
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.HashtagController.Put(POI.repository.ViewModels.UpdateHashtagViewModel)">
             <summary>
-            Update hashtag information (Put method)
+            Update hashtag information 
             </summary>
             <remarks>
+            
+            Authorize : Admin , Moderator
+            
             Update your hashtag with name and short name (Admin)
+            
+            Sample request:
+            
+                PUT /hashtag
+                {
+                    "hashtagId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "name": "string",
+                    "shortName": "string"
+                }    
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.HashtagController.Delete(System.Guid)">
-            <summary>
-            Deactivate an hashtag (Delete method)
-            </summary>
-            <remarks>
-            Deactivate hashtag by this id   
-            </remarks>
+             <summary>
+             Deactivate an hashtag (Delete method)
+             </summary>
+             <remarks>
+             
+             Authorize : Admin , Moderator
+             
+             Deactivate hashtag by this id   
+             
+             Sample request:
+            
+                 DELETE /hashtag
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
         </member>
-        <member name="M:POI.api.Controllers.PoiController.Get">
+        <member name="M:POI.api.Controllers.PoiController.Get(System.Nullable{System.Int32})">
             <summary>
             Get all pois
             </summary>
             <remarks>
+            
+            Authorize : Admin , Moderator
+            
             Get all pois in POI system
             
                 No parameter
@@ -175,90 +480,171 @@
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:POI.api.Controllers.PoiController.GetWithinDestination(System.Guid)">
-            <summary>
-            Get all pois which belong to a Destination
-            </summary>
-            <remarks>
-            Get all pois which belong to a Destination
+        <member name="M:POI.api.Controllers.PoiController.GetWithinDestination(System.Guid,System.Nullable{System.Int32})">
+             <summary>
+             Get all pois which belong to a Destination
+             </summary>
+             <remarks>
+              Authorize : Admin , Moderator
+             Get all pois which belong to a Destination
+             
+             Sample request:
             
-                
-            </remarks>
-            <returns></returns>
+                 GET /poi/{destinationId}
+                 {
+                    "destinationId": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             
+                 
+             </remarks>
+             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.PoiController.GetPOIOfUser">
             <summary>
             Get poi from its user 
             </summary>
             <remarks>
-            Get all pois which belong to a Destination
+            
+            Authorize : User
+            
+            Get all pois which belong to a Destination. User request this POI
             
                 
             </remarks>
             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.PoiController.GetPOIOfUserBySystem(System.Guid)">
-            <summary>
-            Get poi from its user 
-            </summary>
-            <remarks>
-            Get all pois which belong to a Destination
+             <summary>
+             Get poi from its user 
+             </summary>
+             <remarks>
+             Authorize : Admin , Moderator
+             Sample request:
             
-                
-            </remarks>
-            <returns></returns>
+                 GET /poi/post-by-user/{id}
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             
+             
+             Get all pois which belong to a Destination
+             
+                 
+             </remarks>
+             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.PoiController.Get(System.Guid)">
-            <summary>
-            Get poi by ID
-            </summary>
-            <remarks>
-            Get poi in POI system with ID
+             <summary>
+             Get poi by ID
+             </summary>
+             <remarks>
+             Authorize : Admin, Moderator, User
+             
+             Get poi in POI system with ID
+             Sample request:
             
-               ID : ID of poi 
-                
-            </remarks>
-            <returns></returns>
+                 GET /poi/{id}
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+                 
+             </remarks>
+             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.PoiController.Post(POI.repository.ViewModels.CreatePoiViewModel)">
             <summary>
-            Create new poi (Post method)
+            Create new poi 
             </summary>
             <remarks>
+            Authorize : Admin , Moderator, User
+            
             Create new poi 
+            
+            Sample request: 
+            
+                POST /poi
+                {
+                    "name": "string",
+                    "poiTypeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "destinationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "description": "string",
+                    "imageUrl": "string",
+                    "location": {
+                         "latitude": 0,
+                         "longtitude": 0
+                    }
+                }
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.PoiController.Put(POI.repository.ViewModels.UpdatePoiViewModel)">
             <summary>
-            Update poi information (Put method)
+            Update poi information 
             </summary>
             <remarks>
+            
+            Authorize : Admin , Moderator
+            
             Update your poi with name
+            
+            Sample request: 
+            
+                PUT /poi
+                {
+                    "poiId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    "name": "string",
+                    "poiTypeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "destinationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "description": "string",
+                    "imageUrl": "string",
+                    "location": {
+                         "latitude": 0,
+                         "longtitude": 0
+                    }
+                }
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.PoiController.Delete(System.Guid)">
-            <summary>
-            Deactivate a poi (Delete method)
-            </summary>
-            <remarks>
-            Deactivate poi by this id   
-            </remarks>
+             <summary>
+             Deactivate a poi (Delete method)
+             </summary>
+             <remarks>
+             Authorize : Admin , Moderator
+             
+             Deactivate poi by this id 
+             
+             Sample request:
+            
+                 DELETE /poi
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
         </member>
         <member name="M:POI.api.Controllers.PoiController.ApprovePOI(System.Guid)">
-            <summary>
-            Approve a new POI from user
-            </summary>
-            <remarks>
-            Approve a new POI from user
+             <summary>
+             Approve a new POI from user
+             </summary>
+             <remarks>
+             Authorize : Admin , Moderator
+             
+             
+             Approve a new POI from user
+             Sample request:
             
-            </remarks>
-            <returns></returns>
+                 PUT /poi/approve/{id}
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
+             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.PoiTypeController.Get">
             <summary>
             Get all poiTypes
             </summary>
             <remarks>
+            Authorize : Admin , Moderator
+            
             Get all poiTypes in POI system
             
                 No parameter
@@ -271,18 +657,31 @@
             Get poiType by ID
             </summary>
             <remarks>
+            
+            Authorize : Admin , Moderator, User
+            
             Get poiType in POI system with ID
             
-               ID : ID of poiType 
+                GET /poiType
+                {
+                   "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                } 
                 
             </remarks>
             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.PoiTypeController.Post(POI.repository.ViewModels.CreatePoiTypeViewModel)">
             <summary>
-            Create new poiType (Post method)
+            Create new poiType 
             </summary>
             <remarks>
+            Authorize : Admin , Moderator
+            
+                POST /poiType
+                {
+                   "name": "Vui chơi lớn",
+                   "icon" : "Image from firebase url"
+                }  
             Create new poiType 
             </remarks>
         </member>
@@ -291,16 +690,38 @@
             Update poiType information (Put method)
             </summary>
             <remarks>
+            Authorize : Admin , Moderator
+            
+            
             Update your poiType with name
+            
+            Sample request:
+            
+                PUT /poiType
+                {
+                    "poitypeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "name": "string",
+                    "icon": "image from firebase url"
+                }
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.PoiTypeController.Delete(System.Guid)">
-            <summary>
-            Deactivate a poiType (Delete method)
-            </summary>
-            <remarks>
-            Deactivate poiType by this id   
-            </remarks>
+             <summary>
+             Deactivate a poiType (Delete method)
+             </summary>
+             <remarks>
+             
+             Authorize : Admin , Moderator
+             
+             Deactivate poiType by this id   
+             
+             Sample request:
+            
+                 DELETE /poiType/{id}
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
         </member>
         <member name="M:POI.api.Controllers.ProvinceController.Get">
             <summary>
@@ -319,19 +740,32 @@
             Get province by ID
             </summary>
             <remarks>
-            Get province in POI system with ID (Amdin)
             
-               ID : ID of province 
+            Authorize : Admin , Moderator
+            
+            Get province in POI system with ID 
+            
+                GET /province
+                {
+                   "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                }
                 
             </remarks>
             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.ProvinceController.Post(POI.repository.ViewModels.CreateProvinceViewModel)">
             <summary>
-            Create new province (Post method)
+            Create new province 
             </summary>
             <remarks>
-            Create new province  (Admin)
+            Authorize : Admin , Moderator
+            
+                POST /province
+                {
+                   "name": "Quảng Nam",
+                }      
+              
+            Create new province
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.ProvinceController.Put(POI.repository.ViewModels.UpdateProvinceViewModel)">
@@ -339,22 +773,44 @@
             Update province information (Put method)
             </summary>
             <remarks>
-            Update your province with name (Admin)
+            Authorize : Admin , Moderator
+            
+            Update your province with name 
+            
+            Sample request:
+            
+                PUT /privince
+                {
+                    "provinceId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "name": "string",
+                } 
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.ProvinceController.Delete(System.Guid)">
-            <summary>
-            Deactivate an province (Delete method)
-            </summary>
-            <remarks>
-            Deactivate province by this id (Admin)
-            </remarks>
+             <summary>
+             Deactivate an province (Delete method)
+             </summary>
+             <remarks>
+             Authorize : Admin , Moderator
+             
+             Deactivate province by this id    
+             
+             Sample request:
+            
+                 DELETE /province
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
         </member>
         <member name="M:POI.api.Controllers.TripController.GetTrip(System.Nullable{System.Guid})">
             <summary>
             Get all trips
             </summary>
             <remarks>
+            
+            Authorize : Admin , Moderator
+            
             Get all trips in POI system (Admin)
             
                 No parameter
@@ -367,44 +823,88 @@
             Get trip by ID
             </summary>
             <remarks>
-            Get trip in POI system with ID (Admin , User)
             
-               ID : ID of trip 
+            Authorize : Admin , Moderator, User
+            
+            Get trip in POI system with ID 
+            
+            Sample request
+            
+                GET /trip
+                {
+                   "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                } 
                 
             </remarks>
             <returns></returns>
         </member>
         <member name="M:POI.api.Controllers.TripController.Post(POI.repository.ViewModels.CreateTripViewModel)">
             <summary>
-            Create new Trip (Post method)
+            Create new Trip
             </summary>
             <remarks>
+            Authorize : User
+            
             Create new Trip 
+            
+            Sample request
+                POST /trip
+                {
+                   "tripName": "Đi chơi Đà Lạt"
+                }   
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.TripController.Put(POI.repository.ViewModels.UpdateTripViewModel)">
             <summary>
-            Update trip information (Put method)
+            Update trip information
             </summary>
             <remarks>
+            
+            Authorize : User
+            
             Update your trip with name 
+            Sample request:
+            
+                PUT /trip
+                {
+                    "tripId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "tripName": "string",
+                } 
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.TripController.FinishTrip(System.Guid)">
             <summary>
-            Finish trip  (Put method)
+            Finish trip  
             </summary>
             <remarks>
+            Authorize : User
+            
             Finish trip when user end their trip and go home
+            
+             Sample request:
+            
+                GET /trip/finish-trip/{id}
+                {
+                    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                }
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.TripController.Delete(System.Guid)">
-            <summary>
-            Deactivate an trip (Delete method)
-            </summary>
-            <remarks>
-            Deactivate trip by this id   
-            </remarks>
+             <summary>
+             Deactivate an trip 
+             </summary>
+             <remarks>
+             Authorize : User
+             
+             Deactivate trip by this id   
+             
+             Sample request:
+            
+                 DELETE /trip
+                 {
+                    "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
         </member>
         <member name="M:POI.api.Controllers.TripController.GetTripDestination(System.Guid)">
             <summary>
@@ -419,7 +919,15 @@
             Create tripDestination 
             </summary>
             <remarks>
+            Authorize : User
+            
             Get trip destination entities when moving to new destination during a trip
+            
+              POST /trip/{tripID}/destination
+                {
+                   "tripID": "Vui chơi lớn",
+                   "destinationID": "VCL"
+                } 
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.UserController.Get">
@@ -478,6 +986,22 @@
             Login with user Role 
             </remarks>
         </member>
+        <member name="M:POI.api.Controllers.UserController.Register(POI.repository.ViewModels.RegisterUserRequest)">
+            <summary>
+            Register with user Role
+            </summary>
+            <remarks>
+            Register with user Role 
+            </remarks>
+        </member>
+        <member name="M:POI.api.Controllers.UserController.ChangePassword(System.String,System.String)">
+            <summary>
+            Change password
+            </summary>
+            <remarks>
+            Change password 
+            </remarks>
+        </member>
         <member name="M:POI.api.Controllers.VisitController.Get">
             <summary>
             Get all visits
@@ -524,46 +1048,6 @@
             </summary>
             <remarks>
             Archive hashtag by this id   
-            </remarks>
-        </member>
-        <member name="M:POI.api.Controllers.VoteController.Get">
-            <summary>
-            Get all votes
-            </summary>
-            <remarks>
-            Get all votes in POI system
-            
-                No parameter
-                
-            </remarks>
-            <returns></returns>
-        </member>
-        <member name="M:POI.api.Controllers.VoteController.Get(System.Guid)">
-            <summary>
-            Get votes by ID
-            </summary>
-            <remarks>
-            Get votes in POI system with ID
-            
-               ID : ID of votes 
-                
-            </remarks>
-            <returns></returns>
-        </member>
-        <member name="M:POI.api.Controllers.VoteController.Post(POI.repository.ViewModels.CreateVoteViewModel)">
-            <summary>
-            Create new vote (Post method)
-            </summary>
-            <remarks>
-            Create new vote 
-            </remarks>
-        </member>
-        <member name="M:POI.api.Controllers.VoteController.Put(POI.repository.ViewModels.UpdateVoteViewModel)">
-            <summary>
-            Update vote information (Put method)
-            </summary>
-            <remarks>
-            Update your vote with its vote Value 
             </remarks>
         </member>
     </members>

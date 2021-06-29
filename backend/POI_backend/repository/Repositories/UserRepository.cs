@@ -14,6 +14,7 @@ namespace POI.repository.Repositories
     {
         Task<User> GetUserWithRoleAsync(Expression<Func<User, bool>> predicate, bool istracked);
         User GetUserWithRole(Expression<Func<User, bool>> predicate, bool istracked);
+
     }
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
@@ -28,10 +29,11 @@ namespace POI.repository.Repositories
             {
                 return _context.Users
                     .Include(user => user.Role)
-                    .AsNoTracking().FirstOrDefault(predicate);
+                    .FirstOrDefault(predicate);
             }
             return this._context.Users
                 .Include(user => user.Role)
+                .AsNoTracking()
                 .FirstOrDefault(predicate);
         }
 
@@ -41,10 +43,11 @@ namespace POI.repository.Repositories
             {
                 return await _context.Users
                     .Include(user => user.Role)
-                    .AsNoTracking().FirstOrDefaultAsync(predicate);
+                    .FirstOrDefaultAsync(predicate);
             }
             return await _context.Users
                 .Include(user => user.Role)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(predicate);
         }
     }

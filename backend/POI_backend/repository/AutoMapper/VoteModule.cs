@@ -12,12 +12,12 @@ namespace POI.repository.AutoMapper
     {
         public static void ConfigureVoteModule(this IMapperConfigurationExpression mc)
         {
-            mc.CreateMap<Vote, CreateVoteViewModel>();
-            mc.CreateMap<CreateVoteViewModel, Vote>()
+            mc.CreateMap<Vote, VoteViewModel>();
+            mc.CreateMap<VoteViewModel, Vote>()
                 .ForMember(des => des.Status, options => options.MapFrom(src => VoteEnum.Available));
-            mc.CreateMap<Vote, UpdateVoteViewModel>();
-            mc.CreateMap<UpdateVoteViewModel, Vote>()
-                .ForMember(des => des.Status, options => options.MapFrom(src => VoteEnum.Available));
+            //mc.CreateMap<Vote, UpdateVoteViewModel>();
+            //mc.CreateMap<UpdateVoteViewModel, Vote>()
+            //    .ForMember(des => des.Status, options => options.MapFrom(src => VoteEnum.Available));
         }
     }
 }

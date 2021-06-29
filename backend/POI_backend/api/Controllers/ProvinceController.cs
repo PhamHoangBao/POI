@@ -54,9 +54,15 @@ namespace POI.api.Controllers
         /// Get province by ID
         /// </summary>
         /// <remarks>
-        /// Get province in POI system with ID (Amdin)
         /// 
-        ///    ID : ID of province 
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Get province in POI system with ID 
+        /// 
+        ///     GET /province
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         ///     
         /// </remarks>
         /// <returns></returns>
@@ -80,10 +86,17 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Create new province (Post method)
+        /// Create new province 
         /// </summary>
         /// <remarks>
-        /// Create new province  (Admin)
+        /// Authorize : Admin , Moderator
+        /// 
+        ///     POST /province
+        ///     {
+        ///        "name": "Quảng Nam",
+        ///     }      
+        ///   
+        /// Create new province
         /// </remarks>
 
         [HttpPost]
@@ -113,7 +126,17 @@ namespace POI.api.Controllers
         /// Update province information (Put method)
         /// </summary>
         /// <remarks>
-        /// Update your province with name (Admin)
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Update your province with name 
+        /// 
+        /// Sample request:
+        /// 
+        ///     PUT /privince
+        ///     {
+        ///         "provinceId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "name": "string",
+        ///     } 
         /// </remarks>
         [HttpPut]
         [Authorize(Roles = "Admin, Moderator")]
@@ -142,7 +165,16 @@ namespace POI.api.Controllers
         /// Deactivate an province (Delete method)
         /// </summary>
         /// <remarks>
-        /// Deactivate province by this id (Admin)
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Deactivate province by this id    
+        /// 
+        /// Sample request:
+        ///
+        ///     DELETE /province
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin, Moderator")]

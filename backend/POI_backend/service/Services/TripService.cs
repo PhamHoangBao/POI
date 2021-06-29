@@ -66,6 +66,11 @@ namespace POI.service.Services
         public async Task<Tuple<CreateEnum, Guid>> CreateNewTrip(CreateTripViewModel trip, Guid userID)
         {
             //var result = new Tuple<CreateEnum, Guid>();
+            var lastestTrip = _tripRepository.GetLatestTrip(false);
+            if (lastestTrip.Status == (int)TripEnum.ONGOING)
+            {
+                return new Tuple<CreateEnum, Guid>(CreateEnum.Error, Guid.Empty);
+            }
             var entity = _mapper.Map<Trip>(trip);
             entity.StartTime = DateTime.Now;
             entity.UserId = userID;
@@ -77,7 +82,7 @@ namespace POI.service.Services
             }
             catch
             {
-                return new Tuple<CreateEnum, Guid>(CreateEnum.Error, Guid.Empty);
+                return new Tuple<CreateEnum, Guid>(CreateEnum.ErrorInServer, Guid.Empty);
             }
         }
 

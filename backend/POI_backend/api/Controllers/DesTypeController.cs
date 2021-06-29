@@ -33,7 +33,10 @@ namespace POI.api.Controllers
         /// Get all destination types
         /// </summary>
         /// <remarks>
-        /// Get all destination types in POI system (Admin)
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Get all destination types in POI system 
+        /// 
         /// 
         ///     No parameter
         ///     
@@ -55,10 +58,15 @@ namespace POI.api.Controllers
         /// Get destination type by ID
         /// </summary>
         /// <remarks>
-        /// Get destination type in POI system with ID (Admin)
+        /// Authorize : Admin , Moderator
         /// 
-        ///    ID : ID of destination type 
-        ///     
+        /// Get destination type in POI system with ID 
+        /// Sample request:
+        ///
+        ///     GET /desType
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
@@ -80,10 +88,20 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
-        /// Create new destination type (Post method)
+        /// Create new destination type 
         /// </summary>
         /// <remarks>
-        /// Create new destination type  (Admin)
+        /// Authorize : Admin , Moderator
+        /// Sample request:
+        ///
+        ///     POST /desType
+        ///     {
+        ///        "name": "Vui chơi",
+        ///     }      
+        ///     
+        /// Create new destination type  
+        /// 
+        /// 
         /// </remarks>
         [HttpPost]
         [Authorize(Roles = "Admin, Moderator")]
@@ -111,10 +129,21 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Update destination type information (Put method)
+        /// Update destination type information
         /// </summary>
         /// <remarks>
-        /// Update your destination type with name and short name   (Admin)
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Update your destination type with name and short name 
+        /// 
+        /// Sample request:
+        ///
+        ///     PUT /desType
+        ///     {
+        ///         "destinationTypeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "name": "Vui chơi",
+        ///     }      
         /// </remarks>
         [HttpPut]
         [Authorize(Roles = "Admin, Moderator")]
@@ -141,10 +170,19 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Deactivate an destination type (Delete method)
+        /// Deactivate an destination type
         /// </summary>
         /// <remarks>
+        /// Authorize : Admin , Moderator
+        /// 
         /// Deactivate destination type by this id   
+        /// 
+        /// Sample request:
+        ///
+        ///     DELETE /desType
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin, Moderator")]

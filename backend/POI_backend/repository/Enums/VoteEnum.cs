@@ -14,6 +14,6 @@ namespace POI.repository.Enums
     {
         Like = 1,
         Dislike = 2,
-        Noreaction = 3
+        NoReaction = 3
     }
 }

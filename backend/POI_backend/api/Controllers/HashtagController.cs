@@ -34,14 +34,16 @@ namespace POI.api.Controllers
         /// Get all hashtags
         /// </summary>
         /// <remarks>
-        /// Get all hashtags in POI system (Admin)
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Get all hashtags in POI system 
         /// 
         ///     No parameter
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Moderator")]
         [SwaggerResponse(200, "All hashtag is retrieved", typeof(IEnumerable<Hashtag>))]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(404, "The destination is not found")]
@@ -56,14 +58,20 @@ namespace POI.api.Controllers
         /// Get hashtag by ID
         /// </summary>
         /// <remarks>
-        /// Get hastag in POI system with ID (Admin ,User)
+        /// Authorize : Admin , Moderator, User
         /// 
-        ///    ID : ID of hashtag 
-        ///     
+        /// Get hastag in POI system with ID 
+        /// 
+        /// Sample Request
+        /// 
+        ///     GET /hashtag
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }    
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin, User")]
+        [Authorize(Roles = "Admin, User, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The hashtag is retrieved", typeof(Hashtag))]
         [SwaggerResponse(404, "The hashtag is not found")]
@@ -81,14 +89,22 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
-        /// Create new hastag (Post method)
+        /// Create new hastag 
         /// </summary>
         /// <remarks>
-        /// Create new hastag  (Admin)
+        /// Authorize : Admin , Moderator
+        /// Create new hastag 
+        /// Sample Request
+        ///     POST /hashtag
+        ///     {
+        ///        "name": "Vui chơi lớn",
+        ///        "shortName": "VCL"
+        ///     }      
+        ///   
         /// </remarks>
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(201, "Create successfully")]
         [SwaggerResponse(400, "Hashtag is not allowed to update")]
@@ -113,13 +129,25 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Update hashtag information (Put method)
+        /// Update hashtag information 
         /// </summary>
         /// <remarks>
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
         /// Update your hashtag with name and short name (Admin)
+        /// 
+        /// Sample request:
+        /// 
+        ///     PUT /hashtag
+        ///     {
+        ///         "hashtagId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "name": "string",
+        ///         "shortName": "string"
+        ///     }    
         /// </remarks>
         [HttpPut]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "Update successfully")]
         [SwaggerResponse(400, "ID is not allowed to update")]
@@ -146,7 +174,17 @@ namespace POI.api.Controllers
         /// Deactivate an hashtag (Delete method)
         /// </summary>
         /// <remarks>
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
         /// Deactivate hashtag by this id   
+        /// 
+        /// Sample request:
+        ///
+        ///     DELETE /hashtag
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         /// </remarks>
         [HttpDelete("{id}")]
         [SwaggerResponse(201, "Delete successfully")]

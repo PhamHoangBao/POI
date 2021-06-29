@@ -12,12 +12,25 @@ namespace POI.repository.Repositories
     public interface ITripRepository : IGenericRepository<Trip>
     {
         public IQueryable<Trip> GetTrips(Expression<Func<Trip, bool>> predicate, bool istracked);
+        public Trip GetLatestTrip(bool istracked);
     }
     public class TripRepository : GenericRepository<Trip>, ITripRepository
     {
         public TripRepository(POIContext context) : base(context)
         {
 
+        }
+
+        public Trip GetLatestTrip(bool istracked)
+        {
+            if (istracked)
+            {
+                return _context.Trips.OrderByDescending(m => m.StartTime).First();
+            }
+            else
+            {
+                return _context.Trips.OrderByDescending(m => m.StartTime).AsNoTracking().First();
+            }
         }
 
         public IQueryable<Trip> GetTrips(Expression<Func<Trip, bool>> predicate, bool istracked)

@@ -33,6 +33,8 @@ namespace POI.api.Controllers
         /// Get all poiTypes
         /// </summary>
         /// <remarks>
+        /// Authorize : Admin , Moderator
+        /// 
         /// Get all poiTypes in POI system
         /// 
         ///     No parameter
@@ -54,14 +56,20 @@ namespace POI.api.Controllers
         /// Get poiType by ID
         /// </summary>
         /// <remarks>
+        /// 
+        /// Authorize : Admin , Moderator, User
+        /// 
         /// Get poiType in POI system with ID
         /// 
-        ///    ID : ID of poiType 
+        ///     GET /poiType
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     } 
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin, Moderator")]
+        [Authorize(Roles = "Admin, Moderator, User")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The POI type is retrieved", typeof(Poitype))]
         [SwaggerResponse(404, "The POI type is not found")]
@@ -80,9 +88,16 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Create new poiType (Post method)
+        /// Create new poiType 
         /// </summary>
         /// <remarks>
+        /// Authorize : Admin , Moderator
+        /// 
+        ///     POST /poiType
+        ///     {
+        ///        "name": "Vui chơi lớn",
+        ///        "icon" : "Image from firebase url"
+        ///     }  
         /// Create new poiType 
         /// </remarks>
 
@@ -113,7 +128,19 @@ namespace POI.api.Controllers
         /// Update poiType information (Put method)
         /// </summary>
         /// <remarks>
+        /// Authorize : Admin , Moderator
+        /// 
+        /// 
         /// Update your poiType with name
+        /// 
+        /// Sample request:
+        /// 
+        ///     PUT /poiType
+        ///     {
+        ///         "poitypeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "name": "string",
+        ///         "icon": "image from firebase url"
+        ///     }
         /// </remarks>
         [HttpPut]
         [Authorize(Roles = "Admin , Moderator")]
@@ -142,7 +169,17 @@ namespace POI.api.Controllers
         /// Deactivate a poiType (Delete method)
         /// </summary>
         /// <remarks>
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
         /// Deactivate poiType by this id   
+        /// 
+        /// Sample request:
+        ///
+        ///     DELETE /poiType/{id}
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin, Moderator")]

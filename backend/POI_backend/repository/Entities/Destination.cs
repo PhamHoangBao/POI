@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
+
 #nullable disable
 
 namespace POI.repository.Entities
@@ -11,6 +12,7 @@ namespace POI.repository.Entities
         public Destination()
         {
             DesHashtags = new HashSet<DesHashtag>();
+            Pois = new HashSet<Poi>();
             TripDestinations = new HashSet<TripDestination>();
         }
 
@@ -21,15 +23,14 @@ namespace POI.repository.Entities
         public Guid DestinationTypeId { get; set; }
         public Guid ProvinceId { get; set; }
         public string ImageUrl { get; set; }
-
         [JsonIgnore]
         public virtual DestinationType DestinationType { get; set; }
         [JsonIgnore]
         public virtual Province Province { get; set; }
         [JsonIgnore]
-        public virtual ICollection<Poi> Pois { get; set; }
-        [JsonIgnore]
         public virtual ICollection<DesHashtag> DesHashtags { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Poi> Pois { get; set; }
         [JsonIgnore]
         public virtual ICollection<TripDestination> TripDestinations { get; set; }
     }

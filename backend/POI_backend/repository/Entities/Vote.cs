@@ -12,7 +12,6 @@ namespace POI.repository.Entities
         public Guid BlogId { get; set; }
         public int VoteValue { get; set; }
         public int Status { get; set; }
-
         [JsonIgnore]
         public virtual Blog Blog { get; set; }
         [JsonIgnore]

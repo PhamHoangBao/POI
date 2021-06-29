@@ -80,6 +80,7 @@ namespace POI.repository.Repositories
         public void Update(T entity)
         {
             _context.Set<T>().Update(entity);
+
         }
 
 

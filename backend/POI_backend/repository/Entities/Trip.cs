@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+
 #nullable disable
 
 namespace POI.repository.Entities
@@ -9,6 +10,7 @@ namespace POI.repository.Entities
     {
         public Trip()
         {
+            Blogs = new HashSet<Blog>();
             TripDestinations = new HashSet<TripDestination>();
         }
 
@@ -21,6 +23,8 @@ namespace POI.repository.Entities
 
         [JsonIgnore]
         public virtual User User { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Blog> Blogs { get; set; }
         [JsonIgnore]
         public virtual ICollection<TripDestination> TripDestinations { get; set; }
     }

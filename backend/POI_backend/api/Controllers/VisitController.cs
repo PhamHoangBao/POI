@@ -11,6 +11,7 @@ using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace POI.api.Controllers
@@ -39,9 +40,10 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The visit is retrieved")]
+        [SwaggerResponse(404, "The visit is not found")]
         public IActionResult Get()
         {
             _logger.LogInformation("All hashtag is queried");
@@ -60,9 +62,10 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The visit is retrieved")]
+        [SwaggerResponse(404, "The visit is not found")]
         public IActionResult Get(Guid id)
         {
             Visit visit = _visitService.GetByID(id);
@@ -84,10 +87,10 @@ namespace POI.api.Controllers
         /// </remarks>
 
         [HttpPost]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Create successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public async Task<IActionResult> Post(CreateVisitViewModel visitViewModel)
         {
             _logger.LogInformation("Post request is called");
@@ -114,8 +117,10 @@ namespace POI.api.Controllers
         /// Update your visit 
         /// </remarks>
         [HttpPut]
-        [ProducesDefaultResponseType]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "Update successfully")]
+        [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdateVisitViewModel visitViewModel)
         {
             _logger.LogInformation("Put request is called");
@@ -142,7 +147,10 @@ namespace POI.api.Controllers
         /// Archive hashtag by this id   
         /// </remarks>
         [HttpDelete("{id}")]
-        [ProducesDefaultResponseType]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
             _logger.LogInformation("Delete Request is called");

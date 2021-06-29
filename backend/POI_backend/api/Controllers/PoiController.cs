@@ -12,6 +12,8 @@ using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
+using Newtonsoft.Json;
+using POI.repository.Enums;
 
 namespace POI.api.Controllers
 {
@@ -21,7 +23,7 @@ namespace POI.api.Controllers
     {
         private readonly ILogger<PoiController> _logger;
         private readonly IPoiService _poiService;
-
+        private int PageSize = 2;
         public PoiController(IPoiService poiService, ILogger<PoiController> logger)
         {
             _logger = logger;
@@ -32,6 +34,9 @@ namespace POI.api.Controllers
         /// Get all pois
         /// </summary>
         /// <remarks>
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
         /// Get all pois in POI system
         /// 
         ///     No parameter
@@ -39,21 +44,40 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The pois is retrieved", typeof(List<ResponsePoiViewModel>))]
         [SwaggerResponse(404, "The pois is not found")]
-        public IActionResult Get()
+        public IActionResult Get(int? pageIndex)
         {
             _logger.LogInformation("All POIs are queried");
-            return Ok(_poiService.GetPoi(m => true, false));
+            PagedList<ResponsePoiViewModel> responses = _poiService.GetPOIWithPaging(m => true, false, pageIndex ?? 1, PageSize);
+            var metadata = new
+            {
+                responses.PageSize,
+                responses.CurrentPageIndex,
+                responses.TotalCount,
+                responses.HasNext,
+                responses.TotalPages,
+                responses.HasPrevious
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+            return Ok(responses);
         }
 
         /// <summary>
         /// Get all pois which belong to a Destination
         /// </summary>
         /// <remarks>
+        ///  Authorize : Admin , Moderator
         /// Get all pois which belong to a Destination
+        /// 
+        /// Sample request:
+        ///
+        ///     GET /poi/{destinationId}
+        ///     {
+        ///        "destinationId": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         /// 
         ///     
         /// </remarks>
@@ -63,16 +87,39 @@ namespace POI.api.Controllers
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The poi is retrieved", typeof(List<ResponsePoiViewModel>))]
         [SwaggerResponse(404, "The poi is not found")]
-        public IActionResult GetWithinDestination(Guid destinationId)
+        public IActionResult GetWithinDestination(Guid destinationId, int? pageIndex)
         {
-            return Ok(_poiService.GetPoi(m => m.DestinationId.Equals(destinationId), false));
+            User currentUser = (User)HttpContext.Items["User"];
+            PagedList<ResponsePoiViewModel> responses = null;
+            if (currentUser.Role.RoleName.Equals("User"))
+            {
+                responses = _poiService.GetPOIWithPaging(m => m.DestinationId.Equals(destinationId) && m.Status == (int)PoiEnum.Available, false, pageIndex ?? 1, PageSize);
+            }
+            else
+            {
+                responses = _poiService.GetPOIWithPaging(m => m.DestinationId.Equals(destinationId), false, pageIndex ?? 1, PageSize);
+            }
+            var metadata = new
+            {
+                responses.PageSize,
+                responses.CurrentPageIndex,
+                responses.TotalCount,
+                responses.HasNext,
+                responses.TotalPages,
+                responses.HasPrevious
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+            return Ok(responses);
         }
 
         /// <summary>
         /// Get poi from its user 
         /// </summary>
         /// <remarks>
-        /// Get all pois which belong to a Destination
+        /// 
+        /// Authorize : User
+        /// 
+        /// Get all pois which belong to a Destination. User request this POI
         /// 
         ///     
         /// </remarks>
@@ -92,7 +139,16 @@ namespace POI.api.Controllers
         /// Get poi from its user 
         /// </summary>
         /// <remarks>
-        /// Get all pois which belong to a Destination
+        /// Authorize : Admin , Moderator
+        /// Sample request:
+        ///
+        ///     GET /poi/post-by-user/{id}
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
+        /// 
+        /// 
+        /// Get poi from its user 
         /// 
         ///     
         /// </remarks>
@@ -112,9 +168,15 @@ namespace POI.api.Controllers
         /// Get poi by ID
         /// </summary>
         /// <remarks>
-        /// Get poi in POI system with ID
+        /// Authorize : Admin, Moderator, User
         /// 
-        ///    ID : ID of poi 
+        /// Get poi in POI system with ID
+        /// Sample request:
+        ///
+        ///     GET /poi/{id}
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         ///     
         /// </remarks>
         /// <returns></returns>
@@ -125,7 +187,17 @@ namespace POI.api.Controllers
         [SwaggerResponse(404, "The poi is not found")]
         public IActionResult Get(Guid id)
         {
-            ResponsePoiViewModel poi = _poiService.GetPoi(m => m.PoiId.Equals(id), false).First();
+            User currentUser = (User)HttpContext.Items["User"];
+            ResponsePoiViewModel poi = null;
+            if (currentUser.Role.RoleName.Equals("User"))
+            {
+                poi = _poiService.GetPoi(m => m.PoiId.Equals(id) && m.Status == (int)PoiEnum.Available, false).First();
+            }
+            else
+            {
+                poi = _poiService.GetPoi(m => m.PoiId.Equals(id), false).First();
+            }
+
             if (poi == null)
             {
                 return NotFound();
@@ -138,10 +210,27 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Create new poi (Post method)
+        /// Create new poi 
         /// </summary>
         /// <remarks>
+        /// Authorize : Admin , Moderator, User
+        /// 
         /// Create new poi 
+        /// 
+        /// Sample request: 
+        /// 
+        ///     POST /poi
+        ///     {
+        ///         "name": "string",
+        ///         "poiTypeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "destinationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "description": "string",
+        ///         "imageUrl": "string",
+        ///         "location": {
+        ///              "latitude": 0,
+        ///              "longtitude": 0
+        ///         }
+        ///     }
         /// </remarks>
 
         [HttpPost]
@@ -174,10 +263,30 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
-        /// Update poi information (Put method)
+        /// Update poi information 
         /// </summary>
         /// <remarks>
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
         /// Update your poi with name
+        /// 
+        /// Sample request: 
+        /// 
+        ///     PUT /poi
+        ///     {
+        ///         "poiId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        ///         "name": "string",
+        ///         "poiTypeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "destinationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "description": "string",
+        ///         "imageUrl": "string",
+        ///         "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "location": {
+        ///              "latitude": 0,
+        ///              "longtitude": 0
+        ///         }
+        ///     }
         /// </remarks>
         [HttpPut]
         [Authorize(Roles = "Admin , Moderator")]
@@ -206,7 +315,16 @@ namespace POI.api.Controllers
         /// Deactivate a poi (Delete method)
         /// </summary>
         /// <remarks>
-        /// Deactivate poi by this id   
+        /// Authorize : Admin , Moderator
+        /// 
+        /// Deactivate poi by this id 
+        /// 
+        /// Sample request:
+        ///
+        ///     DELETE /poi
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin, Moderator")]
@@ -235,8 +353,16 @@ namespace POI.api.Controllers
         /// Approve a new POI from user
         /// </summary>
         /// <remarks>
-        /// Approve a new POI from user
+        /// Authorize : Admin , Moderator
         /// 
+        /// 
+        /// Approve a new POI from user
+        /// Sample request:
+        ///
+        ///     PUT /poi/approve/{id}
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         /// </remarks>
         /// <returns></returns>
         [HttpPut("approve/{id}")]

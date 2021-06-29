@@ -87,7 +87,7 @@ namespace POI.api.Controllers
         /// </remarks>
 
         [HttpPost]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin, Moderator")]
         [SwaggerResponse(201, "Create user successfully")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(400, "The user is not created")]
@@ -118,13 +118,15 @@ namespace POI.api.Controllers
         /// Update your account with password, firstname, lastname, phone only   
         /// </remarks>
         [HttpPut]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User, Admin, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "Update successfully")]
         [SwaggerResponse(400, "ID is not allowed to update")]
         public IActionResult Put(UpdateUserViewModel userViewModel)
         {
             _logger.LogInformation("Put request is called");
+            User currentUser = (User)HttpContext.Items["User"];
+            userViewModel.RoleId = currentUser.RoleId;
             UpdateEnum resultCode = _userService.UpdateUser(userViewModel);
             if (resultCode == UpdateEnum.Success)
             {
@@ -133,7 +135,8 @@ namespace POI.api.Controllers
             else if (resultCode == UpdateEnum.ErrorInServer)
             {
                 return StatusCode(500);
-            } else
+            }
+            else
             {
                 return BadRequest();
             }
@@ -149,7 +152,7 @@ namespace POI.api.Controllers
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
-        [SwaggerResponse(201, "Delete successfully")]
+        [SwaggerResponse(200, "Delete successfully")]
         [SwaggerResponse(400, "ID is not allowed to delete")]
         public IActionResult Delete(Guid id)
         {
@@ -177,19 +180,75 @@ namespace POI.api.Controllers
         /// </remarks>
         [HttpPost("login")]
         [AllowAnonymous]
-        [SwaggerResponse(201, "Login successfully", typeof(User))]
+        [SwaggerResponse(200, "Login successfully", typeof(AuthenticatedUserViewModel))]
         [SwaggerResponse(404, "No user found")]
         public IActionResult Login(AuthenticatedUserRequest model)
         {
             _logger.LogInformation("Login Request is called");
             AuthenticatedUserViewModel user = _userService.AuthenticateUser(model);
-            if (user != null){
-                    return Ok(user); 
-            } else
+     
+            if (user != null)
+            {
+                return Ok(user);
+            }
+            else
             {
                 return NotFound();
             }
         }
 
+        /// <summary>
+        /// Register with user Role
+        /// </summary>
+        /// <remarks>
+        /// Register with user Role 
+        /// </remarks>
+        [HttpPost("register")]
+        [AllowAnonymous]
+        [SwaggerResponse(201, "Register successfully")]
+        [SwaggerResponse(404, "No user found")]
+        public async Task<IActionResult> Register(RegisterUserRequest model)
+        {
+            _logger.LogInformation("Login Request is called");
+            CreateEnum result = await _userService.RegisterNewUser(model);
+            switch (result)
+            {
+                case CreateEnum.Duplicate:
+                    return BadRequest("Email is already register!");
+                case CreateEnum.Success:
+                    return StatusCode(201);
+                case CreateEnum.ErrorInServer:
+                    return StatusCode(500);
+                default:
+                    return StatusCode(500);
+            }
+        }
+
+        /// <summary>
+        /// Change password
+        /// </summary>
+        /// <remarks>
+        /// Change password 
+        /// </remarks>
+        [HttpPost("change-password")]
+        [Authorize(Roles = "Admin, Moderator, User")]
+        [SwaggerResponse(200, "Change password successfully")]
+        [SwaggerResponse(400, "User is not defined or old password is incorrect")]
+        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
+        {
+            User currentUser = (User)HttpContext.Items["User"];
+            UpdateEnum result = await _userService.ChangePassword(currentUser.UserId, oldPassword, newPassword);
+            switch (result)
+            {
+                case UpdateEnum.Error:
+                    return BadRequest("User is not defined or old password is incorrect");
+                case UpdateEnum.Success:
+                    return StatusCode(200);
+                case UpdateEnum.ErrorInServer:
+                    return StatusCode(500);
+                default:
+                    return StatusCode(500);
+            }
+        }
     }
 }

@@ -60,7 +60,15 @@ namespace POI.repository.Entities
                     .IsRequired()
                     .HasMaxLength(300);
 
+                entity.Property(e => e.TripId).HasColumnName("TripID");
+
                 entity.Property(e => e.UserId).HasColumnName("UserID");
+
+                entity.HasOne(d => d.Trip)
+                    .WithMany(p => p.Blogs)
+                    .HasForeignKey(d => d.TripId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Blog_Trip");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Blogs)
@@ -332,13 +340,9 @@ namespace POI.repository.Entities
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
-                entity.Property(e => e.FirstName)
-                    .IsRequired()
-                    .HasMaxLength(200);
+                entity.Property(e => e.FirstName).HasMaxLength(200);
 
-                entity.Property(e => e.LastName)
-                    .IsRequired()
-                    .HasMaxLength(200);
+                entity.Property(e => e.LastName).HasMaxLength(200);
 
                 entity.Property(e => e.Password)
                     .IsRequired()
@@ -378,6 +382,12 @@ namespace POI.repository.Entities
                 entity.Property(e => e.VisitId)
                     .HasColumnName("VisitID")
                     .HasDefaultValueSql("(newid())");
+
+                entity.HasOne(d => d.Poi)
+                    .WithMany()
+                    .HasForeignKey(d => d.PoiId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Visit_POI");
 
                 entity.HasOne(d => d.Trip)
                     .WithMany()

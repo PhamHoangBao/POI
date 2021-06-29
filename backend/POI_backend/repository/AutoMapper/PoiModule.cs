@@ -25,9 +25,6 @@ namespace POI.repository.AutoMapper
             mc.CreateMap<Poi, ResponsePoiViewModel>()
                  .ForMember(des => des.Location,
                             options => options.MapFrom(src => new MyPoint(src.Location.Coordinate.Y, src.Location.Coordinate.X)));
-            mc.CreateMap<Poi, CreatePoiByUserViewModel>();
-            mc.CreateMap<CreatePoiByUserViewModel, Poi>()
-                .ForMember(des => des.Status, options => options.MapFrom(src => PoiEnum.Pending));
 
         }
     }

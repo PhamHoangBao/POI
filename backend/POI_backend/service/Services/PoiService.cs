@@ -19,6 +19,7 @@ namespace POI.service.Services
         public DeleteEnum DeactivatePoi(Guid id);
         public UpdateEnum UpdatePoi(UpdatePoiViewModel province);
         public List<ResponsePoiViewModel> GetPoi(Expression<Func<Poi, bool>> predicate, bool istracked);
+        public PagedList<ResponsePoiViewModel> GetPOIWithPaging(Expression<Func<Poi, bool>> predicate, bool istracked, int index, int pageSize);
         public UpdateEnum ApprovePOI(Guid id);
     }
     public class PoiService : GenericService<Poi>, IPoiService
@@ -145,5 +146,33 @@ namespace POI.service.Services
             }
         }
 
+        public PagedList<ResponsePoiViewModel> GetPOIWithPaging(Expression<Func<Poi, bool>> predicate, bool istracked, int index, int pageSize)
+        {
+            IQueryable<Poi> pois = _poiRepository.GetPoi(predicate, istracked);
+            PagedList<Poi> poisPageList = PagedList<Poi>.ToPagedList(pois, index, pageSize);
+            //Console.WriteLine("Total pages : " + poisPageList.TotalPages);
+            //Console.WriteLine("Total Count : " + poisPageList.TotalCount);
+            //Console.WriteLine("CurrentPage Index: " + poisPageList.CurrentPageIndex);
+            //Console.WriteLine("PageSize : " + poisPageList.PageSize);
+            //Console.WriteLine("HasPrevious : " + poisPageList.HasPrevious);
+            //Console.WriteLine("HasNext : " + poisPageList.HasNext);
+
+
+            PagedList<ResponsePoiViewModel> responses = _mapper.Map<PagedList<ResponsePoiViewModel>>(poisPageList);
+            //Console.WriteLine("Total pages : " + responses.TotalPages);
+            //Console.WriteLine("Total Count : " + responses.TotalCount);
+            //Console.WriteLine("CurrentPage Index: " + responses.CurrentPageIndex);
+            //Console.WriteLine("PageSize : " + responses.PageSize);
+            //Console.WriteLine("HasPrevious : " + responses.HasPrevious);
+            //Console.WriteLine("HasNext : " + responses.HasNext);
+            for (int i = 0; i < responses.Count(); i++)
+            {
+                var response = responses[i];
+                var poi = poisPageList[i];
+                response.User = _mapper.Map<AuthenticatedUserViewModel>(poi.User);
+                response.Destination = _mapper.Map<ResponseDestinationViewModel>(poi.Destination);
+            }
+            return responses;
+        }
     }
 }

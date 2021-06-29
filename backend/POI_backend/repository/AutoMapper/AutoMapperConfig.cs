@@ -25,6 +25,9 @@ namespace POI.repository.AutoMapper
                 mc.ConfigureVisitModule();
                 mc.ConfigureVoteModule();
                 mc.ConfigureTripDestinationModule();
+                mc.ConfigureBlogModule();
+
+                mc.ConfigureCustomModule();
             }
             )
             ;

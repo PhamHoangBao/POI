@@ -21,7 +21,9 @@ namespace POI.repository.Entities
         public int PosVotes { get; set; }
         public int NegVotes { get; set; }
         public int Status { get; set; }
-
+        public Guid TripId { get; set; }
+        [JsonIgnore]
+        public virtual Trip Trip { get; set; }
         [JsonIgnore]
         public virtual User User { get; set; }
         [JsonIgnore]

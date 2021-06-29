@@ -37,6 +37,9 @@ namespace POI.api.Controllers
         /// Get all trips
         /// </summary>
         /// <remarks>
+        /// 
+        /// Authorize : Admin , Moderator
+        /// 
         /// Get all trips in POI system (Admin)
         /// 
         ///     No parameter
@@ -67,14 +70,22 @@ namespace POI.api.Controllers
         /// Get trip by ID
         /// </summary>
         /// <remarks>
-        /// Get trip in POI system with ID (Admin , User)
         /// 
-        ///    ID : ID of trip 
+        /// Authorize : Admin , Moderator, User
+        /// 
+        /// Get trip in POI system with ID 
+        /// 
+        /// Sample request
+        /// 
+        ///     GET /trip
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     } 
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin, User")]
+        [Authorize(Roles = "Admin, Moderator, User")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The destination is retrieved", typeof(ResponseTripViewModel))]
         [SwaggerResponse(404, "The destination is not found")]
@@ -92,10 +103,18 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
-        /// Create new Trip (Post method)
+        /// Create new Trip
         /// </summary>
         /// <remarks>
+        /// Authorize : User
+        /// 
         /// Create new Trip 
+        /// 
+        /// Sample request
+        ///     POST /trip
+        ///     {
+        ///        "tripName": "Đi chơi Đà Lạt"
+        ///     }   
         /// </remarks>
 
         [HttpPost]
@@ -118,15 +137,25 @@ namespace POI.api.Controllers
             }
             else
             {
-                return Conflict();
+                return BadRequest("Your are in a trip now. To create new trip, finish the current trip");
             }
         }
 
         /// <summary>
-        /// Update trip information (Put method)
+        /// Update trip information
         /// </summary>
         /// <remarks>
+        /// 
+        /// Authorize : User
+        /// 
         /// Update your trip with name 
+        /// Sample request:
+        /// 
+        ///     PUT /trip
+        ///     {
+        ///         "tripId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "tripName": "string",
+        ///     } 
         /// </remarks>
         [HttpPut]
         [Authorize(Roles = "User")]
@@ -153,10 +182,19 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
-        /// Finish trip  (Put method)
+        /// Finish trip  
         /// </summary>
         /// <remarks>
+        /// Authorize : User
+        /// 
         /// Finish trip when user end their trip and go home
+        /// 
+        ///  Sample request:
+        /// 
+        ///     GET /trip/finish-trip/{id}
+        ///     {
+        ///         "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///     }
         /// </remarks>
         [HttpPut("finish-trip/{id}")]
         [Authorize(Roles = "User")]
@@ -188,10 +226,19 @@ namespace POI.api.Controllers
 
 
         /// <summary>
-        /// Deactivate an trip (Delete method)
+        /// Deactivate an trip 
         /// </summary>
         /// <remarks>
+        /// Authorize : User
+        /// 
         /// Deactivate trip by this id   
+        /// 
+        /// Sample request:
+        ///
+        ///     DELETE /trip
+        ///     {
+        ///        "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+        ///     }
         /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "User")]
@@ -238,7 +285,15 @@ namespace POI.api.Controllers
         /// Create tripDestination 
         /// </summary>
         /// <remarks>
+        /// Authorize : User
+        /// 
         /// Get trip destination entities when moving to new destination during a trip
+        /// 
+        ///   POST /trip/{tripID}/destination
+        ///     {
+        ///        "tripID": "Vui chơi lớn",
+        ///        "destinationID": "VCL"
+        ///     } 
         /// </remarks>
         [HttpPost("{tripID}/destinations")]
         [Authorize(Roles = "User")]

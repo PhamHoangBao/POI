@@ -16,6 +16,8 @@ namespace POI.repository.Entities
         public int Status { get; set; }
 
         [JsonIgnore]
+        public virtual Poi Poi { get; set; }
+        [JsonIgnore]
         public virtual Trip Trip { get; set; }
         [JsonIgnore]
         public virtual User User { get; set; }

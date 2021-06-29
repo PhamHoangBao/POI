@@ -55,6 +55,16 @@ namespace POI.service.DI
 
             services.AddTransient<IDesHashtagService, DesHashtagService>();
             services.AddTransient<IDesHashtagRepository, DesHashtagRepository>();
+
+            services.AddTransient<IRoleService, RoleService>();
+            services.AddTransient<IRoleRepository, RoleRepository>();
+
+            services.AddTransient<IBlogService, BlogService>();
+            services.AddTransient<IBlogRepository, BlogRepository>();
+
+            //services.AddTransient<IPO, BlogService>();
+            services.AddTransient<IPoiBlogRepository, PoiBlogRepository>();
+
         }
     }
 }
