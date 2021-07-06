@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
+using POI.repository.Utils;
+using POI.repository.ViewModels;
 
 #nullable disable
 
@@ -33,5 +35,19 @@ namespace POI.repository.Entities
         public virtual ICollection<Poi> Pois { get; set; }
         [JsonIgnore]
         public virtual ICollection<TripDestination> TripDestinations { get; set; }
+
+        public bool GetDistance(MyPoint location, double radius)
+        {
+            var currentLocation = new Point(location.Longtitude, location.Latitude);
+            var destinationLocation = new Point(this.Location.Coordinate.Y, this.Location.Coordinate.X);
+            double distance = LocationUtils.HaversineDistance(currentLocation, destinationLocation, LocationUtils.DistanceUnit.Kilometers);
+            return distance < radius;
+        }
+
+        //public bool Func<Destination,bool>{
+
+        //} 
+
+        //private static
     }
 }

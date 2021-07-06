@@ -58,8 +58,8 @@ namespace POI.service.Services
             else
             {
                 var entity = _mapper.Map<User>(model);
-                //var userRole = _roleRepository.FirstOrDefault(m => m.RoleName.Equals("User"), false);
-                //entity.RoleId = userRole.RoleId;
+                var userRole = _roleRepository.FirstOrDefault(m => m.RoleName.Equals("User"), false);
+                entity.RoleId = userRole.RoleId;
                 try
                 {
                     await AddAsync(entity);

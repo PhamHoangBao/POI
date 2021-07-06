@@ -24,5 +24,6 @@ namespace POI.repository.ViewModels
         public DateTime? EndTime { get; set; }
         public AuthenticatedUserViewModel User { get; set; }
         public List<ResponseDestinationViewModel> Destinations { get; set; }
+        public List<ResponseVisitViewModel> Visits { get; set; }
     }
 }

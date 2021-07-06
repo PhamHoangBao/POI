@@ -29,6 +29,12 @@ namespace POI.repository.ViewModels
         public Guid? RoleId { get; set; }
     }
 
+    public class ChangePasswordViewModel
+    {
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+
+    }
     public class AuthenticatedUserViewModel 
     {
         public Guid UserId { get; set; }

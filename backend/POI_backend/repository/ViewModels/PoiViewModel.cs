@@ -15,7 +15,7 @@ namespace POI.repository.ViewModels
         public MyPoint Location { get; set; }
     }
 
-    
+
 
     public class UpdatePoiViewModel
     {
@@ -41,5 +41,6 @@ namespace POI.repository.ViewModels
         public Poitype PoiType { get; set; }
         public AuthenticatedUserViewModel User { get; set; }
         public ResponseDestinationViewModel Destination { get; set; }
+        public int Count { get; set; }
     }
 }

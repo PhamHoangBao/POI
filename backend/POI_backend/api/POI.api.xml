@@ -182,6 +182,19 @@
              </remarks>
              <returns></returns>
         </member>
+        <member name="M:POI.api.Controllers.DestinationController.GetDestinationInRadius(System.Double,System.Double,System.Double)">
+             <summary>
+             Get destination in Radius
+             </summary>
+             <remarks>
+             Get destination with Radius in POI system. Radius in km.
+             
+             Authorize : User, Admin , Moderator
+             Sample request:
+            
+             </remarks>
+             <returns></returns>
+        </member>
         <member name="M:POI.api.Controllers.DestinationController.Post(POI.repository.ViewModels.CreateDestinationViewModel)">
              <summary>
              Create new destination 
@@ -527,7 +540,7 @@
                  }
              
              
-             Get all pois which belong to a Destination
+             Get poi from its user 
              
                  
              </remarks>
@@ -596,6 +609,7 @@
                     "destinationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     "description": "string",
                     "imageUrl": "string",
+                    "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     "location": {
                          "latitude": 0,
                          "longtitude": 0
@@ -634,6 +648,25 @@
                  PUT /poi/approve/{id}
                  {
                     "id": "387fcbaf-34c6-4b97-8578-fd1fb5b0fc18",
+                 }
+             </remarks>
+             <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.PoiController.CheckUserLocation(POI.repository.ViewModels.MyPoint)">
+             <summary>
+             Assign user location to POI
+             </summary>
+             <remarks>
+             Authorize : User
+             
+             
+             Assign user location to POI
+             Sample request:
+            
+                 POST /poi/location
+                 {
+                     "latitude": 10.7788026,
+                     "longtitude": 106.6925037
                  }
              </remarks>
              <returns></returns>
@@ -809,9 +842,24 @@
             </summary>
             <remarks>
             
-            Authorize : Admin , Moderator
+            Authorize : Admin , Moderator, User
             
-            Get all trips in POI system (Admin)
+            Get all trips in POI system or trip belong to a User (Admin, Moderator). For User, they can only get their trip.
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:POI.api.Controllers.TripController.GetCurrentTrip">
+            <summary>
+            Get current trip
+            </summary>
+            <remarks>
+            
+            Authorize :  User
+            
+            Get trip belong to a User that they are going to
             
                 No parameter
                 
@@ -847,11 +895,13 @@
             
             Create new Trip 
             
-            Sample request
+            Sample request:
+            
                 POST /trip
                 {
                    "tripName": "Đi chơi Đà Lạt"
                 }   
+                
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.TripController.Put(POI.repository.ViewModels.UpdateTripViewModel)">
@@ -881,7 +931,7 @@
             
             Finish trip when user end their trip and go home
             
-             Sample request:
+            Sample request:
             
                 GET /trip/finish-trip/{id}
                 {
@@ -923,11 +973,13 @@
             
             Get trip destination entities when moving to new destination during a trip
             
-              POST /trip/{tripID}/destination
-                {
-                   "tripID": "Vui chơi lớn",
-                   "destinationID": "VCL"
-                } 
+            Sample request :
+            
+                POST /trip/{tripID}/destination
+                    {
+                        "tripID": "Vui chơi lớn",
+                        "destinationID": "VCL"
+                    } 
             </remarks>
         </member>
         <member name="M:POI.api.Controllers.UserController.Get">
@@ -994,7 +1046,7 @@
             Register with user Role 
             </remarks>
         </member>
-        <member name="M:POI.api.Controllers.UserController.ChangePassword(System.String,System.String)">
+        <member name="M:POI.api.Controllers.UserController.ChangePassword(POI.repository.ViewModels.ChangePasswordViewModel)">
             <summary>
             Change password
             </summary>

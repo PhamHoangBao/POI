@@ -12,7 +12,7 @@ using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
-
+using POI.repository.Enums;
 
 namespace POI.api.Controllers
 {
@@ -38,32 +38,79 @@ namespace POI.api.Controllers
         /// </summary>
         /// <remarks>
         /// 
-        /// Authorize : Admin , Moderator
+        /// Authorize : Admin , Moderator, User
         /// 
-        /// Get all trips in POI system (Admin)
+        /// Get all trips in POI system or trip belong to a User (Admin, Moderator). For User, they can only get their trip.
         /// 
         ///     No parameter
         ///     
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Admin, Moderator")]
+        [Authorize(Roles = "Admin, Moderator, User")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The trip is retrieved")]
         [SwaggerResponse(404, "The trip is not found")]
         public IActionResult GetTrip(Guid? userID)
         {
+
             List<ResponseTripViewModel> result = null;
-            if (userID != null)
+            User currentUser = (User)HttpContext.Items["User"];
+            if (currentUser.Role.RoleName.Equals("User"))
             {
-                result = _tripService.GetTrips(m => m.User.UserId.Equals(userID), false);
+                result = _tripService.GetTrips(m => m.User.UserId.Equals(currentUser.UserId), false);
+
             }
             else
             {
-                result = _tripService.GetTrips(m => true, false);
+                if (userID != null)
+                {
+                    result = _tripService.GetTrips(m => m.User.UserId.Equals(userID), false);
+                }
+                else
+                {
+                    result = _tripService.GetTrips(m => true, false);
+                }
             }
-            _logger.LogInformation("All destination is queried");
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Get current trip
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// Authorize :  User
+        /// 
+        /// Get trip belong to a User that they are going to
+        /// 
+        ///     No parameter
+        ///     
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("current-trip")]
+        [Authorize(Roles = " User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The trip is retrieved")]
+        [SwaggerResponse(404, "The trip is not found")]
+        public IActionResult GetCurrentTrip()
+        {
+            List<ResponseTripViewModel> result = null;
+            User currentUser = (User)HttpContext.Items["User"];
+            if (currentUser.Role.RoleName.Equals("User"))
+            {
+                result = _tripService.GetTrips(m => m.User.UserId.Equals(currentUser.UserId) && m.Status == (int)TripEnum.ONGOING, false);
+
+            }
+            if (result != null)
+            {
+                return Ok(result);
+
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         /// <summary>
@@ -110,11 +157,13 @@ namespace POI.api.Controllers
         /// 
         /// Create new Trip 
         /// 
-        /// Sample request
+        /// Sample request:
+        /// 
         ///     POST /trip
         ///     {
         ///        "tripName": "Đi chơi Đà Lạt"
         ///     }   
+        ///     
         /// </remarks>
 
         [HttpPost]
@@ -189,7 +238,7 @@ namespace POI.api.Controllers
         /// 
         /// Finish trip when user end their trip and go home
         /// 
-        ///  Sample request:
+        /// Sample request:
         /// 
         ///     GET /trip/finish-trip/{id}
         ///     {
@@ -289,11 +338,13 @@ namespace POI.api.Controllers
         /// 
         /// Get trip destination entities when moving to new destination during a trip
         /// 
-        ///   POST /trip/{tripID}/destination
-        ///     {
-        ///        "tripID": "Vui chơi lớn",
-        ///        "destinationID": "VCL"
-        ///     } 
+        /// Sample request :
+        /// 
+        ///     POST /trip/{tripID}/destination
+        ///         {
+        ///             "tripID": "Vui chơi lớn",
+        ///             "destinationID": "VCL"
+        ///         } 
         /// </remarks>
         [HttpPost("{tripID}/destinations")]
         [Authorize(Roles = "User")]

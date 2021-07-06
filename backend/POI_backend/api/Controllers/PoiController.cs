@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using POI.repository.Entities;
+using NetTopologySuite.Geometries;
 using POI.service.Services;
 using POI.repository.AutoMapper;
 using POI.repository.ViewModels;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
 using Newtonsoft.Json;
 using POI.repository.Enums;
+using POI.repository.Utils;
 
 namespace POI.api.Controllers
 {
@@ -23,7 +25,7 @@ namespace POI.api.Controllers
     {
         private readonly ILogger<PoiController> _logger;
         private readonly IPoiService _poiService;
-        private int PageSize = 2;
+        private int PageSize = 5;
         public PoiController(IPoiService poiService, ILogger<PoiController> logger)
         {
             _logger = logger;
@@ -48,10 +50,10 @@ namespace POI.api.Controllers
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The pois is retrieved", typeof(List<ResponsePoiViewModel>))]
         [SwaggerResponse(404, "The pois is not found")]
-        public IActionResult Get(int? pageIndex)
+        public async Task<IActionResult> Get(int? pageIndex)
         {
             _logger.LogInformation("All POIs are queried");
-            PagedList<ResponsePoiViewModel> responses = _poiService.GetPOIWithPaging(m => true, false, pageIndex ?? 1, PageSize);
+            PagedList<ResponsePoiViewModel> responses = await _poiService.GetPOIWithPaging(m => true, false, pageIndex ?? 1, PageSize);
             var metadata = new
             {
                 responses.PageSize,
@@ -87,17 +89,17 @@ namespace POI.api.Controllers
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The poi is retrieved", typeof(List<ResponsePoiViewModel>))]
         [SwaggerResponse(404, "The poi is not found")]
-        public IActionResult GetWithinDestination(Guid destinationId, int? pageIndex)
+        public async Task<IActionResult> GetWithinDestination(Guid destinationId, int? pageIndex)
         {
             User currentUser = (User)HttpContext.Items["User"];
             PagedList<ResponsePoiViewModel> responses = null;
             if (currentUser.Role.RoleName.Equals("User"))
             {
-                responses = _poiService.GetPOIWithPaging(m => m.DestinationId.Equals(destinationId) && m.Status == (int)PoiEnum.Available, false, pageIndex ?? 1, PageSize);
+                responses = await _poiService.GetPOIWithPaging(m => m.DestinationId.Equals(destinationId) && m.Status == (int)PoiEnum.Available, false, pageIndex ?? 1, PageSize);
             }
             else
             {
-                responses = _poiService.GetPOIWithPaging(m => m.DestinationId.Equals(destinationId), false, pageIndex ?? 1, PageSize);
+                responses = await _poiService.GetPOIWithPaging(m => m.DestinationId.Equals(destinationId), false, pageIndex ?? 1, PageSize);
             }
             var metadata = new
             {
@@ -185,17 +187,17 @@ namespace POI.api.Controllers
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The poi is retrieved", typeof(ResponsePoiViewModel))]
         [SwaggerResponse(404, "The poi is not found")]
-        public IActionResult Get(Guid id)
+        public async Task<IActionResult> Get(Guid id)
         {
             User currentUser = (User)HttpContext.Items["User"];
             ResponsePoiViewModel poi = null;
             if (currentUser.Role.RoleName.Equals("User"))
             {
-                poi = _poiService.GetPoi(m => m.PoiId.Equals(id) && m.Status == (int)PoiEnum.Available, false).First();
+                poi = (await _poiService.GetPoi(m => m.PoiId.Equals(id) && m.Status == (int)PoiEnum.Available, false)).First();
             }
             else
             {
-                poi = _poiService.GetPoi(m => m.PoiId.Equals(id), false).First();
+                poi = (await _poiService.GetPoi(m => m.PoiId.Equals(id), false)).First();
             }
 
             if (poi == null)
@@ -386,6 +388,43 @@ namespace POI.api.Controllers
             {
                 return BadRequest("No POI found ");
             }
+        }
+
+        /// <summary>
+        /// Assign user location to POI
+        /// </summary>
+        /// <remarks>
+        /// Authorize : User
+        /// 
+        /// 
+        /// Assign user location to POI
+        /// Sample request:
+        ///
+        ///     POST /poi/location
+        ///     {
+        ///         "latitude": 10.7788026,
+        ///         "longtitude": 106.6925037
+        ///     }
+        /// </remarks>
+        /// <returns></returns>
+        [HttpPost("location")]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(400, "Fail to add record")]
+        [SwaggerResponse(200, "Add user location to redis data")]
+        public async Task<IActionResult> CheckUserLocation(MyPoint point)
+        {
+            User currentUser = (User)HttpContext.Items["User"];
+
+            CreateEnum result = await _poiService.AddUserToPoiInRedis(point, currentUser.UserId);
+            if (result == CreateEnum.Success)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("Cannot find the nearest POI ");
+            }
+
         }
     }
 }

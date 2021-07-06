@@ -234,10 +234,10 @@ namespace POI.api.Controllers
         [Authorize(Roles = "Admin, Moderator, User")]
         [SwaggerResponse(200, "Change password successfully")]
         [SwaggerResponse(400, "User is not defined or old password is incorrect")]
-        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             User currentUser = (User)HttpContext.Items["User"];
-            UpdateEnum result = await _userService.ChangePassword(currentUser.UserId, oldPassword, newPassword);
+            UpdateEnum result = await _userService.ChangePassword(currentUser.UserId, model.OldPassword, model.NewPassword);
             switch (result)
             {
                 case UpdateEnum.Error:

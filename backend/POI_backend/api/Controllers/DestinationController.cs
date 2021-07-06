@@ -12,6 +12,10 @@ using POI.service.Services;
 using POI.repository.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
+using POI.repository.Utils;
+using NetTopologySuite.Geometries;
+using System.Linq.Expressions;
+
 
 namespace POI.api.Controllers
 {
@@ -69,6 +73,36 @@ namespace POI.api.Controllers
         }
 
         /// <summary>
+        /// Get destination in Radius
+        /// </summary>
+        /// <remarks>
+        /// Get destination with Radius in POI system. Radius in km.
+        /// 
+        /// Authorize : User, Admin , Moderator
+        /// Sample request:
+        ///
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("radius")]
+        [Authorize(Roles = "Admin, Moderator, User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "Destination is received successfully")]
+        [SwaggerResponse(400, "No destination found")]
+        public IActionResult GetDestinationInRadius(double latitude, double longtitude, double radius)
+        {
+            Console.WriteLine("Get API is called");
+            var result = _destinationService.GetDestinationWithRadius(latitude, longtitude, radius);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        /// <summary>
         /// Create new destination 
         /// </summary>
         /// <remarks>
@@ -92,7 +126,6 @@ namespace POI.api.Controllers
         ///
         ///  
         /// </remarks>
-
         [HttpPost]
         [Authorize(Roles = "Admin, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
@@ -265,13 +298,13 @@ namespace POI.api.Controllers
         /// <response code="200">Returns list of destinations that satisfy condition</response>
         /// <response code="404">If the list is empty</response> 
         [HttpGet]
-        [ProducesDefaultResponseType]
         [Authorize(Roles = "Admin, User, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The list of destination is retrieved", typeof(List<ResponseDestinationViewModel>))]
         [SwaggerResponse(404, "The list of destination is not found")]
         public IActionResult Get(Guid? provinceID, Guid? hashtagId, string? destinationName)
         {
+            Console.WriteLine("Get API is called");
             List<ResponseDestinationViewModel> result = null;
 
             result = _destinationService.GetDestination(m =>

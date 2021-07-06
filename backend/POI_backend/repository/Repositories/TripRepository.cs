@@ -12,7 +12,7 @@ namespace POI.repository.Repositories
     public interface ITripRepository : IGenericRepository<Trip>
     {
         public IQueryable<Trip> GetTrips(Expression<Func<Trip, bool>> predicate, bool istracked);
-        public Trip GetLatestTrip(bool istracked);
+        public Trip GetLatestTrip(Guid userId, bool istracked);
     }
     public class TripRepository : GenericRepository<Trip>, ITripRepository
     {
@@ -21,15 +21,27 @@ namespace POI.repository.Repositories
 
         }
 
-        public Trip GetLatestTrip(bool istracked)
+        public Trip GetLatestTrip(Guid userId, bool istracked)
         {
             if (istracked)
             {
-                return _context.Trips.OrderByDescending(m => m.StartTime).First();
+                var trips = _context.Trips.Where(m => m.UserId.Equals(userId));
+                Console.WriteLine("Trip count : " + trips.Count());
+                if (trips.Count() != 0)
+                {
+                    return trips.OrderByDescending(m => m.StartTime).First();
+                }
+                return null;
             }
             else
             {
-                return _context.Trips.OrderByDescending(m => m.StartTime).AsNoTracking().First();
+                var trips = _context.Trips.Where(m => m.UserId.Equals(userId)).AsNoTracking();
+                Console.WriteLine("Trip count : " + trips.Count());
+                if (trips.Count() != 0)
+                {
+                    return trips.OrderByDescending(m => m.StartTime).AsNoTracking().First();
+                }
+                return null;
             }
         }
 
@@ -41,6 +53,12 @@ namespace POI.repository.Repositories
                     .Include(trip => trip.User)
                     .Include(trip => trip.TripDestinations)
                     .ThenInclude(tripDest => tripDest.Destination)
+                    .Include(trip => trip.Visits)
+                    .ThenInclude(tripVisit => tripVisit.Poi)
+                    .ThenInclude(poi => poi.Destination)
+                    .Include(trip => trip.Visits)
+                    .ThenInclude(tripVisit => tripVisit.Poi)
+                    .ThenInclude(poi => poi.PoiType)
                     .Select(trip => new Trip
                     {
                         TripId = trip.TripId,
@@ -59,8 +77,10 @@ namespace POI.repository.Repositories
                             Status = trip.User.Status,
                             Role = trip.User.Role
                         },
-                        TripDestinations = trip.TripDestinations.OrderBy(m => m.Order).ToList()
+                        TripDestinations = trip.TripDestinations.OrderBy(m => m.Order).ToList(),
+                        Visits = trip.Visits
                     })
+                    .OrderByDescending(m => m.StartTime)
                     .Where(predicate);
             }
             else
@@ -74,6 +94,12 @@ namespace POI.repository.Repositories
                     .Include(trip => trip.TripDestinations)
                     .ThenInclude(tripDest => tripDest.Destination)
                     .ThenInclude(destination => destination.DestinationType)
+                    .Include(trip => trip.Visits)
+                    .ThenInclude(tripVisit => tripVisit.Poi)
+                    .ThenInclude(poi => poi.Destination)
+                    .Include(trip => trip.Visits)
+                    .ThenInclude(tripVisit => tripVisit.Poi)
+                    .ThenInclude(poi => poi.PoiType)
                     .Select(trip => new Trip
                     {
                         TripId = trip.TripId,
@@ -92,8 +118,10 @@ namespace POI.repository.Repositories
                             Status = trip.User.Status,
                             Role = trip.User.Role
                         },
-                        TripDestinations = trip.TripDestinations.OrderBy(m => m.Order).ToList()
+                        TripDestinations = trip.TripDestinations.OrderBy(m => m.Order).ToList(),
+                        Visits = trip.Visits
                     })
+                    .OrderByDescending(m => m.StartTime)
                     .Where(predicate)
                     .AsNoTracking();
             }

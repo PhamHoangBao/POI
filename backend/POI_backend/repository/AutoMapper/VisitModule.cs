@@ -15,10 +15,12 @@ namespace POI.repository.AutoMapper
         {
             mc.CreateMap<Visit, CreateVisitViewModel>();
             mc.CreateMap<CreateVisitViewModel, Visit>()
+                .ForMember(des => des.VisitDate, options => options.MapFrom(src => DateTime.Now))
                 .ForMember(des => des.Status, options => options.MapFrom(src => VisitEnum.Available));
             mc.CreateMap<Visit, UpdateVisitViewModel>();
             mc.CreateMap<UpdateVisitViewModel, Visit>()
                 .ForMember(des => des.Status, options => options.MapFrom(src => VisitEnum.Available));
+            mc.CreateMap<Visit, ResponseVisitViewModel>();
         }
     }
 }

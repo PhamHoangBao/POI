@@ -10,6 +10,9 @@ using POI.repository.ViewModels;
 using POI.repository.Enums;
 using System.Linq;
 using System.Linq.Expressions;
+using StackExchange.Redis.Extensions.Core.Abstractions;
+using POI.repository.Utils;
+using NetTopologySuite.Geometries;
 
 namespace POI.service.Services
 {
@@ -18,21 +21,47 @@ namespace POI.service.Services
         public Task<CreateEnum> CreateNewPoi(CreatePoiViewModel province, Guid userID);
         public DeleteEnum DeactivatePoi(Guid id);
         public UpdateEnum UpdatePoi(UpdatePoiViewModel province);
-        public List<ResponsePoiViewModel> GetPoi(Expression<Func<Poi, bool>> predicate, bool istracked);
-        public PagedList<ResponsePoiViewModel> GetPOIWithPaging(Expression<Func<Poi, bool>> predicate, bool istracked, int index, int pageSize);
+        public Task<List<ResponsePoiViewModel>> GetPoi(Expression<Func<Poi, bool>> predicate, bool istracked);
+        public Task<PagedList<ResponsePoiViewModel>> GetPOIWithPaging(Expression<Func<Poi, bool>> predicate, bool istracked, int index, int pageSize);
         public UpdateEnum ApprovePOI(Guid id);
+        public Task<CreateEnum> AddUserToPoiInRedis(MyPoint point, Guid userID);
+
+        //public IQueryable<Poi> SortPOI(MyPoint point);
     }
     public class PoiService : GenericService<Poi>, IPoiService
     {
         private readonly IPoiRepository _poiRepository;
         private readonly IMapper _mapper;
-
+        private readonly IRedisCacheClient _redisCacheClient;
+        private const int Radius = 20;
         public PoiService(IPoiRepository poiRepository
                                 , IMapper mapper
+                                , IRedisCacheClient redisCacheClient
                                 ) : base(poiRepository)
         {
             _mapper = mapper;
             _poiRepository = poiRepository;
+            _redisCacheClient = redisCacheClient;
+        }
+
+        private async Task<IDictionary<string, string>> GetDataInRedis()
+        {
+            var keys = (await _redisCacheClient.GetDbFromConfiguration().SearchKeysAsync("*")).ToList();
+            var value = await _redisCacheClient.GetDbFromConfiguration().GetAllAsync<string>(keys);
+            return value;
+        }
+
+        private int CountUserInPOI(IDictionary<string, string> data, Guid poiID)
+        {
+            int count = 0;
+            foreach (KeyValuePair<string, string> item in data)
+            {
+                if (item.Value.Equals(poiID.ToString()))
+                {
+                    count = count + 1;
+                }
+            }
+            return count;
         }
 
         public async Task<CreateEnum> CreateNewPoi(CreatePoiViewModel poi, Guid userID)
@@ -108,7 +137,7 @@ namespace POI.service.Services
                 }
             }
         }
-        public List<ResponsePoiViewModel> GetPoi(Expression<Func<Poi, bool>> predicate, bool istracked)
+        public async Task<List<ResponsePoiViewModel>> GetPoi(Expression<Func<Poi, bool>> predicate, bool istracked)
         {
             IQueryable<Poi> pois = _poiRepository.GetPoi(predicate, istracked);
             List<Poi> poiList = pois.ToList();
@@ -117,6 +146,17 @@ namespace POI.service.Services
             {
                 var response = responses[i];
                 var poi = poiList[i];
+                var count = 0;
+                try
+                {
+                    var redisData = await GetDataInRedis();
+                    count = CountUserInPOI(redisData, response.PoiId);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                response.Count = count;
                 response.User = _mapper.Map<AuthenticatedUserViewModel>(poi.User);
                 response.Destination = _mapper.Map<ResponseDestinationViewModel>(poi.Destination);
             }
@@ -146,33 +186,59 @@ namespace POI.service.Services
             }
         }
 
-        public PagedList<ResponsePoiViewModel> GetPOIWithPaging(Expression<Func<Poi, bool>> predicate, bool istracked, int index, int pageSize)
+        public async Task<PagedList<ResponsePoiViewModel>> GetPOIWithPaging(Expression<Func<Poi, bool>> predicate, bool istracked, int index, int pageSize)
         {
             IQueryable<Poi> pois = _poiRepository.GetPoi(predicate, istracked);
             PagedList<Poi> poisPageList = PagedList<Poi>.ToPagedList(pois, index, pageSize);
-            //Console.WriteLine("Total pages : " + poisPageList.TotalPages);
-            //Console.WriteLine("Total Count : " + poisPageList.TotalCount);
-            //Console.WriteLine("CurrentPage Index: " + poisPageList.CurrentPageIndex);
-            //Console.WriteLine("PageSize : " + poisPageList.PageSize);
-            //Console.WriteLine("HasPrevious : " + poisPageList.HasPrevious);
-            //Console.WriteLine("HasNext : " + poisPageList.HasNext);
-
-
             PagedList<ResponsePoiViewModel> responses = _mapper.Map<PagedList<ResponsePoiViewModel>>(poisPageList);
-            //Console.WriteLine("Total pages : " + responses.TotalPages);
-            //Console.WriteLine("Total Count : " + responses.TotalCount);
-            //Console.WriteLine("CurrentPage Index: " + responses.CurrentPageIndex);
-            //Console.WriteLine("PageSize : " + responses.PageSize);
-            //Console.WriteLine("HasPrevious : " + responses.HasPrevious);
-            //Console.WriteLine("HasNext : " + responses.HasNext);
+
             for (int i = 0; i < responses.Count(); i++)
             {
                 var response = responses[i];
                 var poi = poisPageList[i];
+                var count = 0;
+                try
+                {
+                    var redisData = await GetDataInRedis();
+                    count = CountUserInPOI(redisData, response.PoiId);
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                response.Count = count;
                 response.User = _mapper.Map<AuthenticatedUserViewModel>(poi.User);
                 response.Destination = _mapper.Map<ResponseDestinationViewModel>(poi.Destination);
             }
             return responses;
+        }
+
+        public async Task<CreateEnum> AddUserToPoiInRedis(MyPoint point, Guid userID)
+        {
+            Poi poi = _poiRepository.GetClosestPOI(point);
+            Console.WriteLine("Current Poi : " + poi.Name);
+            if (poi != null)
+            {
+                Point currentUserLocation = new Point(point.Longtitude, point.Latitude);
+                Point poiLocation = new Point(poi.Location.Coordinate.X, poi.Location.Coordinate.Y);
+                var distance = LocationUtils.HaversineDistance(currentUserLocation, poiLocation, LocationUtils.DistanceUnit.Kilometers);
+                if (distance <= Radius)
+                {
+                    bool isAdded = await _redisCacheClient
+                        .GetDbFromConfiguration()
+                        .AddAsync<string>(userID.ToString(), poi.PoiId.ToString(), DateTimeOffset.Now.AddMinutes(5));
+                    if (isAdded)
+                    {
+                        return CreateEnum.Success;
+                    }
+                    else
+                    {
+                        return CreateEnum.Error;
+                    }
+                }
+            }
+            return CreateEnum.Error;
         }
     }
 }

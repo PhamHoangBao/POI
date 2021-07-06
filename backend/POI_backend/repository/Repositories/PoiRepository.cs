@@ -5,16 +5,24 @@ using System.Linq.Expressions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using POI.repository.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
+using POI.repository.Utils;
+using POI.repository.Enums;
+
 
 namespace POI.repository.Repositories
 {
     public interface IPoiRepository : IGenericRepository<Poi>
     {
         public IQueryable<Poi> GetPoi(Expression<Func<Poi, bool>> predicate, bool istracked);
+        public Poi GetClosestPOI(MyPoint point);
     }
     public class PoiRepository : GenericRepository<Poi>, IPoiRepository
     {
+
         public PoiRepository(POIContext context) : base(context)
         {
 
@@ -69,6 +77,14 @@ namespace POI.repository.Repositories
                    .Where(predicate)
                    .AsNoTracking();
             }
+        }
+        public Poi GetClosestPOI(MyPoint point)
+        {
+            Point currentUserLocation = new Point(point.Longtitude, point.Latitude);
+            return _context.Pois
+                    .OrderBy(p => p.Location.Distance(currentUserLocation))
+                    .Where(p => p.Status == (int)PoiEnum.Available)
+                    .First();
         }
 
     }

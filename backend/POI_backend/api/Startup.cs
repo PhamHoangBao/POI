@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using AutoMapper;
 using NetTopologySuite;
 using Newtonsoft;
+using StackExchange.Redis.Extensions.Core.Configuration;
 
 namespace api
 {
@@ -65,8 +66,21 @@ namespace api
             // Configure CORS
             services.AddCors(c =>
             {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
+                c.AddPolicy("AllowAll", options =>
+                {
+                    //options.WithOrigins("http://localhost:8000").AllowAnyMethod().AllowAnyHeader();
+                    options.SetIsOriginAllowed((host) => true).AllowAnyHeader().AllowAnyMethod();
+                });
             });
+
+            var redisConfiguration = Configuration.GetSection("Redis").Get<RedisConfiguration>();
+            services.AddStackExchangeRedisExtensions<StackExchange.Redis.Extensions.Newtonsoft.NewtonsoftSerializer>(redisConfiguration);
+                //services.AddStackExchangeRedisCache(options =>
+            //{
+            //    options.Configuration = Configuration.GetConnectionString("RedisConnection");
+            //    options.InstanceName = "POI_Redis_";
+            //});
+
             // add configuration
             services.AddSingleton<IConfiguration>(Configuration);
             // configure strongly typed settings object
@@ -97,7 +111,7 @@ namespace api
 
             //services
             services.AddControllers().AddNewtonsoftJson(
-                    options => 
+                    options =>
                     {
                         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                     }
@@ -154,6 +168,10 @@ namespace api
 
             app.UseHttpsRedirection();
 
+            app.UseRouting();
+
+            app.UseCors("AllowAll");
+
             // Enable middleware to serve generated Swagger as a JSON endpoint
             app.UseSwagger();
 
@@ -164,8 +182,6 @@ namespace api
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "POI API");
             });
 
-
-            app.UseRouting();
 
             app.UseMiddleware<JwtMiddleware>();
 

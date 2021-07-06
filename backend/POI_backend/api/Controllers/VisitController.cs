@@ -40,7 +40,7 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User, Admin, Moderator")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The visit is retrieved")]
         [SwaggerResponse(404, "The visit is not found")]
@@ -94,7 +94,8 @@ namespace POI.api.Controllers
         public async Task<IActionResult> Post(CreateVisitViewModel visitViewModel)
         {
             _logger.LogInformation("Post request is called");
-            CreateEnum resultCode = await _visitService.CreateNewVisit(visitViewModel);
+            User currentUser = (User)HttpContext.Items["User"];
+            CreateEnum resultCode = await _visitService.CreateNewVisit(visitViewModel, currentUser.UserId);
             if (resultCode == CreateEnum.Success)
             {
                 return CreatedAtAction("Get", null);
@@ -105,7 +106,7 @@ namespace POI.api.Controllers
             }
             else
             {
-                return Conflict();
+                return BadRequest("You already check in it in this trip");
             }
         }
 

@@ -12,6 +12,7 @@ namespace POI.repository.Entities
         {
             Blogs = new HashSet<Blog>();
             TripDestinations = new HashSet<TripDestination>();
+            Visits = new HashSet<Visit>();
         }
 
         public Guid TripId { get; set; }
@@ -27,5 +28,7 @@ namespace POI.repository.Entities
         public virtual ICollection<Blog> Blogs { get; set; }
         [JsonIgnore]
         public virtual ICollection<TripDestination> TripDestinations { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Visit> Visits { get; set; }
     }
 }

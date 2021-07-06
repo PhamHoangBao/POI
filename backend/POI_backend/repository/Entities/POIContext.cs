@@ -367,9 +367,11 @@ namespace POI.repository.Entities
 
             modelBuilder.Entity<Visit>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("Visit");
+
+                entity.Property(e => e.VisitId)
+                    .HasColumnName("VisitID")
+                    .HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.PoiId).HasColumnName("PoiID");
 
@@ -379,24 +381,20 @@ namespace POI.repository.Entities
 
                 entity.Property(e => e.VisitDate).HasColumnType("datetime");
 
-                entity.Property(e => e.VisitId)
-                    .HasColumnName("VisitID")
-                    .HasDefaultValueSql("(newid())");
-
                 entity.HasOne(d => d.Poi)
-                    .WithMany()
+                    .WithMany(p => p.Visits)
                     .HasForeignKey(d => d.PoiId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Visit_POI");
 
                 entity.HasOne(d => d.Trip)
-                    .WithMany()
+                    .WithMany(p => p.Visits)
                     .HasForeignKey(d => d.TripId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Visit_Trip");
 
                 entity.HasOne(d => d.User)
-                    .WithMany()
+                    .WithMany(p => p.Visits)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Visit_User");
