@@ -68,7 +68,7 @@ namespace POI.api.Controllers
         [SwaggerResponse(404, "The visit is not found")]
         public IActionResult Get(Guid id)
         {
-            Visit visit = _visitService.GetByID(id);
+            ResponseVisitViewModel visit = _visitService.GetVisits(m => m.VisitId.Equals(id), false).First();
             if (visit == null)
             {
                 return NotFound();
@@ -95,12 +95,13 @@ namespace POI.api.Controllers
         {
             _logger.LogInformation("Post request is called");
             User currentUser = (User)HttpContext.Items["User"];
-            CreateEnum resultCode = await _visitService.CreateNewVisit(visitViewModel, currentUser.UserId);
-            if (resultCode == CreateEnum.Success)
+            Tuple<CreateEnum,Guid> result = await _visitService.CreateNewVisit(visitViewModel, currentUser.UserId);
+            if (result.Item1 == CreateEnum.Success)
             {
-                return CreatedAtAction("Get", null);
+                Console.WriteLine(result.Item2);
+                return Get(result.Item2);
             }
-            else if (resultCode == CreateEnum.ErrorInServer)
+            else if (result.Item1 == CreateEnum.ErrorInServer)
             {
                 return StatusCode(500);
             }
@@ -122,10 +123,11 @@ namespace POI.api.Controllers
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "Update successfully")]
         [SwaggerResponse(400, "ID is not allowed to update")]
-        public IActionResult Put(UpdateVisitViewModel visitViewModel)
+        public async Task<IActionResult> Put(UpdateVisitViewModel visitViewModel)
         {
             _logger.LogInformation("Put request is called");
-            UpdateEnum resultCode = _visitService.UpdateVisit(visitViewModel);
+            User currentUser = (User)HttpContext.Items["User"];
+            UpdateEnum resultCode = await _visitService.UpdateVisit(visitViewModel, currentUser.UserId);
             if (resultCode == UpdateEnum.Success)
             {
                 return Ok();
@@ -136,9 +138,10 @@ namespace POI.api.Controllers
             }
             else
             {
-                return StatusCode(405);
+                return BadRequest("Some thing wrong here");
             }
         }
+
 
 
         /// <summary>

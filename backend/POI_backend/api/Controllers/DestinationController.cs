@@ -61,7 +61,16 @@ namespace POI.api.Controllers
         [SwaggerResponse(404, "The destination is not found")]
         public IActionResult Get(Guid id)
         {
-            ResponseDestinationViewModel destination = _destinationService.GetDestination(m => m.DestinationId.Equals(id), false).First();
+            User currentUser = (User)HttpContext.Items["User"];
+            ResponseDestinationViewModel destination = null;
+            if (currentUser.Role.RoleName.Equals("User"))
+            {
+                destination = _destinationService.GetDestination(m => m.DestinationId.Equals(id) && m.Status == (int) DestinationEnum.Available, false).First();
+            }
+            else
+            {
+                destination = _destinationService.GetDestination(m => m.DestinationId.Equals(id), false).First();
+            }
             if (destination == null)
             {
                 return NotFound();
@@ -134,12 +143,12 @@ namespace POI.api.Controllers
         public async Task<IActionResult> Post(CreateDestinationViewModel destinationViewModel)
         {
             _logger.LogInformation("Post request is called");
-            CreateEnum resultCode = await _destinationService.CreateNewDestination(destinationViewModel);
-            if (resultCode == CreateEnum.Success)
+            Tuple<CreateEnum, Guid> result = await _destinationService.CreateNewDestination(destinationViewModel);
+            if (result.Item1 == CreateEnum.Success)
             {
-                return CreatedAtAction("Get", null);
+                return CreatedAtAction("Get", result.Item2);
             }
-            else if (resultCode == CreateEnum.ErrorInServer)
+            else if (result.Item1 == CreateEnum.ErrorInServer)
             {
                 return StatusCode(500);
             }
@@ -306,12 +315,23 @@ namespace POI.api.Controllers
         {
             Console.WriteLine("Get API is called");
             List<ResponseDestinationViewModel> result = null;
+            User currentUser = (User)HttpContext.Items["User"];
+            if (currentUser.Role.RoleName.Equals("User"))
+            {
+                result = _destinationService.GetDestination(m =>
+                       (provinceID == null || m.ProvinceId.Equals(provinceID))
+                    && (hashtagId == null || m.DesHashtags.Where(d => d.HashtagId.Equals(hashtagId)).Any())
+                    && (destinationName == null || m.DestinationName.Contains(destinationName))
+                    && (m.Status == (int)DestinationEnum.Available), false);
+            }
+            else
+            {
+                result = _destinationService.GetDestination(m =>
+                       (provinceID == null || m.ProvinceId.Equals(provinceID))
+                    && (hashtagId == null || m.DesHashtags.Where(d => d.HashtagId.Equals(hashtagId)).Any())
+                    && (destinationName == null || m.DestinationName.Contains(destinationName)), false);
+            }
 
-            result = _destinationService.GetDestination(m =>
-                        (provinceID == null || m.ProvinceId.Equals(provinceID))
-                     && (hashtagId == null || m.DesHashtags.Where(d => d.HashtagId.Equals(hashtagId)).Any())
-                     && (destinationName == null || m.DestinationName.Contains(destinationName))
-            , false);
             if (result != null)
             {
                 return Ok(result);

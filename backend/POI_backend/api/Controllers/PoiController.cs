@@ -131,10 +131,10 @@ namespace POI.api.Controllers
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The poi is retrieved", typeof(List<ResponsePoiViewModel>))]
         [SwaggerResponse(404, "The poi is not found")]
-        public IActionResult GetPOIOfUser()
+        public async Task<IActionResult> GetPOIOfUser()
         {
             User currentUser = (User)HttpContext.Items["User"];
-            return Ok(_poiService.GetPoi(m => m.UserId.Equals(currentUser.UserId), false));
+            return Ok(await _poiService.GetPoi(m => m.UserId.Equals(currentUser.UserId), false));
         }
 
         /// <summary>
@@ -160,9 +160,9 @@ namespace POI.api.Controllers
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The poi is retrieved", typeof(List<ResponsePoiViewModel>))]
         [SwaggerResponse(404, "The poi is not found")]
-        public IActionResult GetPOIOfUserBySystem(Guid id)
+        public async Task<IActionResult> GetPOIOfUserBySystem(Guid id)
         {
-            return Ok(_poiService.GetPoi(m => m.UserId.Equals(id), false));
+            return Ok(await _poiService.GetPoi(m => m.UserId.Equals(id), false));
         }
 
 
@@ -249,12 +249,12 @@ namespace POI.api.Controllers
                 userID = currentUser.UserId;
             }
             _logger.LogInformation("Post request is called");
-            CreateEnum resultCode = await _poiService.CreateNewPoi(poiViewModel, userID);
-            if (resultCode == CreateEnum.Success)
+            Tuple<CreateEnum, Guid> result = await _poiService.CreateNewPoi(poiViewModel, userID);
+            if (result.Item1 == CreateEnum.Success)
             {
-                return CreatedAtAction("Get", null);
+                return CreatedAtAction("Get", result.Item2);
             }
-            else if (resultCode == CreateEnum.ErrorInServer)
+            else if (result.Item1 == CreateEnum.ErrorInServer)
             {
                 return StatusCode(500);
             }

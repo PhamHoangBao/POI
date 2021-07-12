@@ -16,7 +16,7 @@ namespace POI.service.Services
 {
     public interface IDestinationService : IGenericService<Destination>
     {
-        public Task<CreateEnum> CreateNewDestination(CreateDestinationViewModel destination);
+        public Task<Tuple<CreateEnum,Guid>> CreateNewDestination(CreateDestinationViewModel destination);
         public DeleteEnum DeactivateDestination(Guid id);
         public UpdateEnum UpdateDestination(UpdateDestinationViewModel destination);
         public List<ResponseDestinationViewModel> GetDestination(Expression<Func<Destination, bool>> predicate, bool istracked);
@@ -36,11 +36,11 @@ namespace POI.service.Services
             _destinationRepository = destinationRepository;
         }
 
-        public async Task<CreateEnum> CreateNewDestination(CreateDestinationViewModel destination)
+        public async Task<Tuple<CreateEnum, Guid>> CreateNewDestination(CreateDestinationViewModel destination)
         {
             if (await FirstOrDefaultAsync(m => m.DestinationName.Equals(destination.DestinationName), false) != null)
             {
-                return CreateEnum.Duplicate;
+                return new Tuple<CreateEnum, Guid>(CreateEnum.Duplicate, Guid.Empty);
             }
             else
             {
@@ -49,11 +49,11 @@ namespace POI.service.Services
                 {
                     await AddAsync(entity);
                     await SaveChangesAsync();
-                    return CreateEnum.Success;
+                    return new Tuple<CreateEnum, Guid>(CreateEnum.Success, entity.DestinationId);
                 }
                 catch
                 {
-                    return CreateEnum.ErrorInServer;
+                    return new Tuple<CreateEnum, Guid>(CreateEnum.ErrorInServer, Guid.Empty);
                 }
             }
         }

@@ -4,6 +4,7 @@ using System.Text;
 using AutoMapper;
 using POI.repository.Entities;
 using POI.repository.Enums;
+using POI.repository.Utils;
 using POI.repository.ViewModels;
 
 
@@ -25,6 +26,7 @@ namespace POI.repository.AutoMapper
             mc.CreateMap<AuthenticatedUserViewModel, User>()
                 .ForMember(des => des.Status, options => options.MapFrom(src => UserEnum.Active));
             mc.CreateMap<RegisterUserRequest, User>()
+                .ForMember(des => des.Password, options => options.MapFrom(src => PasswordUtils.HashPassword(src.Password)))
                 .ForMember(des => des.Status, options => options.MapFrom(src => UserEnum.Active));
         }
     }

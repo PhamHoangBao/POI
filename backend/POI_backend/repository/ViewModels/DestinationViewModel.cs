@@ -57,7 +57,7 @@ namespace POI.repository.ViewModels
         public string ImageUrl { get; set; }
         public Province Province { get; set; }
         public DestinationType DestinationType { get; set; }
-
+        public int Status { get; set; }
         public ICollection<Hashtag> HashTags { get; set; }
     }
 }

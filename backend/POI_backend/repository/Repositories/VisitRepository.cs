@@ -11,6 +11,7 @@ namespace POI.repository.Repositories
 {
     public interface IVisitRepository : IGenericRepository<Visit>
     {
+        public IQueryable<Visit> GetVisits(Expression<Func<Visit, bool>> predicate, bool istracked);
         public Tuple<double,double> CalculateRating(Guid poiId);
     }
     public class VisitRepository : GenericRepository<Visit> , IVisitRepository
@@ -24,7 +25,7 @@ namespace POI.repository.Repositories
         {
             var poiRatings = _context.Visits
                 .Select(p => new { Rating = p.Rating, PoiId = p.PoiId })
-                .Where(m => m.PoiId.Equals(poiId)).ToList();
+                .Where(m => m.PoiId.Equals(poiId) && m.Rating != -1).ToList();
             var numberOfRating = poiRatings.Count();
             double totalRating = 0;
             for(int i = 0; i < numberOfRating; i++)
@@ -35,6 +36,38 @@ namespace POI.repository.Repositories
             Console.WriteLine("poiID : " + poiId.ToString());
             Console.WriteLine("Total : " + totalRating + " num rating : " + numberOfRating);
             return new Tuple<double, double>(totalRating, numberOfRating);
+        }
+
+        public IQueryable<Visit> GetVisits(Expression<Func<Visit, bool>> predicate, bool istracked)
+        {
+            if (istracked)
+            {
+                return _context.Visits
+                    .Include(m => m.Poi)
+                    .Select(m => new Visit
+                    {
+                        VisitId = m.VisitId,
+                        PoiId = m.PoiId,
+                        Rating = m.Rating,
+                        VisitDate = m.VisitDate,
+                        Poi = m.Poi
+                    })
+                    .Where(predicate);
+            } else
+            {
+                return _context.Visits
+                    .Include(m => m.Poi)
+                    .Select(m => new Visit
+                    {
+                        VisitId = m.VisitId,
+                        PoiId = m.PoiId,
+                        Rating = m.Rating,
+                        VisitDate = m.VisitDate,
+                        Poi = m.Poi
+                    })
+                    .Where(predicate)
+                    .AsNoTracking();
+            }
         }
     }
 }

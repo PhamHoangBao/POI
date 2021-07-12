@@ -267,7 +267,7 @@ namespace POI.api.Controllers
             List<ResponseBlogViewModel> result = null;
             if (currentUser.Role.RoleName.Equals("User"))
             {
-                result = _blogService.GetBlogs(m => m.UserId.Equals(currentUser.UserId), false);
+                result = _blogService.GetBlogs(m => m.UserId.Equals(currentUser.UserId) && m.Status != (int)BlogEnum.Disable, false);
             }
             if (result != null)
             {
@@ -391,5 +391,36 @@ namespace POI.api.Controllers
                     return StatusCode(500);
             }
         }
+
+        /// <summary>
+        /// Get vote value from blog
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// Authorize : User
+        /// 
+        /// Get vote value that assigned with user from blog. It can be like, dislike or noreaction
+        /// 
+        ///     No parameter
+        ///     
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("vote")]
+        [Authorize(Roles = "User")]
+        [SwaggerResponse(401, "Request in unauthorized")]
+        [SwaggerResponse(200, "The vote value is retreive")]
+        [SwaggerResponse(404, "The blog or user is not found")]
+        public IActionResult GetVote(Guid blogId)
+        {
+            _logger.LogInformation("Get Vote Request is called");
+            User currentUser = (User)HttpContext.Items["User"];
+            int value = _voteService.GetVoteValueOfBlog(currentUser.UserId, blogId);
+            var result = new
+            {
+                voteValue = value
+            };
+            return Ok(result);
+        }
+
     }
 }

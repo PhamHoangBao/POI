@@ -171,7 +171,7 @@ namespace POI.service.Services
                     new Claim(ClaimTypes.Role, user.Role.RoleName),
                     new Claim(ClaimTypes.Email, user.Email),
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(60),
+                Expires = DateTime.UtcNow.AddDays(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

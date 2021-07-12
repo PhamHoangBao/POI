@@ -18,7 +18,7 @@ namespace POI.service.Services
 {
     public interface IPoiService : IGenericService<Poi>
     {
-        public Task<CreateEnum> CreateNewPoi(CreatePoiViewModel province, Guid userID);
+        public Task<Tuple<CreateEnum, Guid>> CreateNewPoi(CreatePoiViewModel province, Guid userID);
         public DeleteEnum DeactivatePoi(Guid id);
         public UpdateEnum UpdatePoi(UpdatePoiViewModel province);
         public Task<List<ResponsePoiViewModel>> GetPoi(Expression<Func<Poi, bool>> predicate, bool istracked);
@@ -64,11 +64,11 @@ namespace POI.service.Services
             return count;
         }
 
-        public async Task<CreateEnum> CreateNewPoi(CreatePoiViewModel poi, Guid userID)
+        public async Task<Tuple<CreateEnum, Guid>> CreateNewPoi(CreatePoiViewModel poi, Guid userID)
         {
             if (await FirstOrDefaultAsync(m => m.Name.Equals(poi.Name), false) != null)
             {
-                return CreateEnum.Duplicate;
+                return new Tuple<CreateEnum, Guid>(CreateEnum.Duplicate, Guid.Empty);
             }
             else
             {
@@ -83,11 +83,11 @@ namespace POI.service.Services
                 {
                     await AddAsync(entity);
                     await SaveChangesAsync();
-                    return CreateEnum.Success;
+                    return new Tuple<CreateEnum, Guid>(CreateEnum.Success, entity.PoiId);
                 }
                 catch
                 {
-                    return CreateEnum.ErrorInServer;
+                    return new Tuple<CreateEnum, Guid>(CreateEnum.ErrorInServer, Guid.Empty);
                 }
             }
         }
@@ -142,6 +142,7 @@ namespace POI.service.Services
             IQueryable<Poi> pois = _poiRepository.GetPoi(predicate, istracked);
             List<Poi> poiList = pois.ToList();
             List<ResponsePoiViewModel> responses = _mapper.Map<List<ResponsePoiViewModel>>(poiList);
+            Console.WriteLine("Response count : " + responses.Count);
             for (int i = 0; i < responses.Count(); i++)
             {
                 var response = responses[i];
@@ -149,17 +150,23 @@ namespace POI.service.Services
                 var count = 0;
                 try
                 {
+                    Console.WriteLine("Trying to get Count ");
                     var redisData = await GetDataInRedis();
                     count = CountUserInPOI(redisData, response.PoiId);
+                    Console.WriteLine("Finish get count :  " + count);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
                 response.Count = count;
+                Console.WriteLine("Finish reading3 ");
                 response.User = _mapper.Map<AuthenticatedUserViewModel>(poi.User);
+                Console.WriteLine("Finish reading1 ");
                 response.Destination = _mapper.Map<ResponseDestinationViewModel>(poi.Destination);
+                Console.WriteLine("Finish reading ");
             }
+            Console.WriteLine("Finish reading2 ");
             return responses;
         }
         public UpdateEnum ApprovePOI(Guid id)
@@ -227,7 +234,7 @@ namespace POI.service.Services
                 {
                     bool isAdded = await _redisCacheClient
                         .GetDbFromConfiguration()
-                        .AddAsync<string>(userID.ToString(), poi.PoiId.ToString(), DateTimeOffset.Now.AddMinutes(5));
+                        .AddAsync<string>(userID.ToString(), poi.PoiId.ToString(), DateTimeOffset.Now.AddDays(5));
                     if (isAdded)
                     {
                         return CreateEnum.Success;

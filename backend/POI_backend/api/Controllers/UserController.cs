@@ -12,6 +12,7 @@ using POI.repository.ViewModels;
 using POI.repository.ResultEnums;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
+using POI.repository.Utils;
 
 
 namespace POI.api.Controllers
@@ -185,6 +186,7 @@ namespace POI.api.Controllers
         public IActionResult Login(AuthenticatedUserRequest model)
         {
             _logger.LogInformation("Login Request is called");
+            model.Password = PasswordUtils.HashPassword(model.Password);
             AuthenticatedUserViewModel user = _userService.AuthenticateUser(model);
      
             if (user != null)
@@ -210,6 +212,7 @@ namespace POI.api.Controllers
         public async Task<IActionResult> Register(RegisterUserRequest model)
         {
             _logger.LogInformation("Login Request is called");
+            //model.Password = PasswordUtils.HashPassword(model.Password);
             CreateEnum result = await _userService.RegisterNewUser(model);
             switch (result)
             {
@@ -237,6 +240,8 @@ namespace POI.api.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             User currentUser = (User)HttpContext.Items["User"];
+            model.OldPassword = PasswordUtils.HashPassword(model.OldPassword);
+            model.NewPassword = PasswordUtils.HashPassword(model.NewPassword);
             UpdateEnum result = await _userService.ChangePassword(currentUser.UserId, model.OldPassword, model.NewPassword);
             switch (result)
             {

@@ -33,7 +33,7 @@ namespace POI.api.Controllers
         /// Get all poiTypes
         /// </summary>
         /// <remarks>
-        /// Authorize : Admin , Moderator
+        /// Authorize : Admin , Moderator, User
         /// 
         /// Get all poiTypes in POI system
         /// 
@@ -42,7 +42,7 @@ namespace POI.api.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Admin, Moderator")]
+        [Authorize(Roles = "Admin, Moderator, User")]
         [SwaggerResponse(401, "Request in unauthorized")]
         [SwaggerResponse(200, "The POI types is retrieved", typeof(Poitype))]
         [SwaggerResponse(404, "The POI types is not found")]

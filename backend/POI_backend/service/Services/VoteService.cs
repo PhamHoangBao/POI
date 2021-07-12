@@ -14,6 +14,7 @@ namespace POI.service.Services
     public interface IVoteService : IGenericService<Vote>
     {
         CreateEnum CreateVote(VoteViewModel model, Guid userID);
+        int GetVoteValueOfBlog(Guid userId, Guid blogId);
     }
     public class VoteService : GenericService<Vote>, IVoteService
     {
@@ -111,6 +112,19 @@ namespace POI.service.Services
                     Console.WriteLine(e.Message);
                     return CreateEnum.Error;
                 }
+            }
+        }
+
+        public int GetVoteValueOfBlog(Guid userId, Guid blogId)
+        {
+            Vote vote = _voteRepository.FirstOrDefault(m => m.UserId.Equals(userId) && m.BlogId.Equals(blogId), false);
+            if (vote != null)
+            {
+                return vote.VoteValue;
+            }
+            else
+            {
+                return (int)VoteValue.NoReaction;
             }
         }
     }

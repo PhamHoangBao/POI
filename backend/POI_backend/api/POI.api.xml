@@ -163,6 +163,21 @@
             </remarks>
             <returns></returns>
         </member>
+        <member name="M:POI.api.Controllers.BlogController.GetVote(System.Guid)">
+            <summary>
+            Get vote value from blog
+            </summary>
+            <remarks>
+            
+            Authorize : User
+            
+            Get vote value that assigned with user from blog. It can be like, dislike or noreaction
+            
+                No parameter
+                
+            </remarks>
+            <returns></returns>
+        </member>
         <member name="M:POI.api.Controllers.DestinationController.Get(System.Guid)">
              <summary>
              Get destination by ID
@@ -676,7 +691,7 @@
             Get all poiTypes
             </summary>
             <remarks>
-            Authorize : Admin , Moderator
+            Authorize : Admin , Moderator, User
             
             Get all poiTypes in POI system
             

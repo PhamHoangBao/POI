@@ -69,7 +69,7 @@ namespace api
                 c.AddPolicy("AllowAll", options =>
                 {
                     //options.WithOrigins("http://localhost:8000").AllowAnyMethod().AllowAnyHeader();
-                    options.SetIsOriginAllowed((host) => true).AllowAnyHeader().AllowAnyMethod();
+                    options.SetIsOriginAllowed((host) => true).AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("X-Pagination");
                 });
             });
 
